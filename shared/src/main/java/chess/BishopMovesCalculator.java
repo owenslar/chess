@@ -11,7 +11,7 @@ public class BishopMovesCalculator extends PieceMovesCalculator {
         int y = myPosition.getColumn();
         Collection<ChessMove> moves = new ArrayList<>();
         while (x < 8 && y < 8) {
-            System.out.println("Current Moves: " + moves);
+//            System.out.println("Current Moves: " + moves);
             ChessPosition nextPosition = new ChessPosition(x + 1, y + 1);
             ChessPiece nextPiece = board.getPiece(nextPosition);
             ChessMove move = new ChessMove(myPosition, nextPosition);
@@ -22,6 +22,7 @@ public class BishopMovesCalculator extends PieceMovesCalculator {
                 if (nextPiece.getTeamColor() != myPiece.getTeamColor()) {
                     moves.add(move);
                 }
+                break;
             }
             x += 1;
             y += 1;
@@ -39,6 +40,7 @@ public class BishopMovesCalculator extends PieceMovesCalculator {
                 if (nextPiece.getTeamColor() != myPiece.getTeamColor()) {
                     moves.add(move);
                 }
+                break;
             }
             x += 1;
             y -= 1;
@@ -56,6 +58,7 @@ public class BishopMovesCalculator extends PieceMovesCalculator {
                 if (nextPiece.getTeamColor() != myPiece.getTeamColor()) {
                     moves.add(move);
                 }
+                break;
             }
             x -= 1;
             y += 1;
@@ -73,6 +76,7 @@ public class BishopMovesCalculator extends PieceMovesCalculator {
                 if (nextPiece.getTeamColor() != myPiece.getTeamColor()) {
                     moves.add(move);
                 }
+                break;
             }
             x -= 1;
             y -= 1;
