@@ -12,6 +12,8 @@ public class PieceMovesCalculator {
                 return BishopMovesCalculator.pieceMoves(board, myPosition);
             case KING:
                 return KingMovesCalculator.pieceMoves(board, myPosition);
+            case KNIGHT:
+                return KnightMovesCalculator.pieceMoves(board, myPosition);
         }
         return new ArrayList<>();
     }
