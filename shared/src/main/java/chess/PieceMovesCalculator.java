@@ -7,14 +7,12 @@ public class PieceMovesCalculator {
 
     public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece.PieceType type = board.getPiece(myPosition).getPieceType();
-        switch (type) {
-            case BISHOP:
-                return BishopMovesCalculator.pieceMoves(board, myPosition);
-            case KING:
-                return KingMovesCalculator.pieceMoves(board, myPosition);
-            case KNIGHT:
-                return KnightMovesCalculator.pieceMoves(board, myPosition);
-        }
-        return new ArrayList<>();
+        return switch (type) {
+            case BISHOP -> BishopMovesCalculator.pieceMoves(board, myPosition);
+            case KING -> KingMovesCalculator.pieceMoves(board, myPosition);
+            case KNIGHT -> KnightMovesCalculator.pieceMoves(board, myPosition);
+            case PAWN -> PawnMovesCalculator.pieceMoves(board, myPosition);
+            default -> new ArrayList<>();
+        };
     }
 }
