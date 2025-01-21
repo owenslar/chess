@@ -12,6 +12,7 @@ public class PieceMovesCalculator {
             case KING -> KingMovesCalculator.pieceMoves(board, myPosition);
             case KNIGHT -> KnightMovesCalculator.pieceMoves(board, myPosition);
             case PAWN -> PawnMovesCalculator.pieceMoves(board, myPosition);
+            case ROOK -> RookMovesCalculator.pieceMoves(board, myPosition);
             default -> new ArrayList<>();
         };
     }
