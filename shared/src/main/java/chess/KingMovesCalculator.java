@@ -5,7 +5,8 @@ import java.util.Collection;
 
 public class KingMovesCalculator extends PieceMovesCalculator {
 
-    public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+    @Override
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> moves = new ArrayList<>();
         ChessMove move = tryMove(board, myPosition, 1, 1);
         if (move != null) {

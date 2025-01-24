@@ -5,7 +5,8 @@ import java.util.Collection;
 
 public class RookMovesCalculator extends PieceMovesCalculator {
 
-    public static Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+    @Override
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece myPiece = board.getPiece(myPosition);
         int x = myPosition.getRow();
         int y = myPosition.getColumn();
