@@ -17,6 +17,19 @@ public class ChessBoard implements Iterable<ChessPiece> {
         
     }
 
+    public ChessBoard(ChessBoard other) {
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                ChessPiece piece = other.squares[row][col];
+                if (piece != null) {
+                    squares[row][col] = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
+                } else {
+                    squares[row][col] = null;
+                }
+            }
+        }
+    }
+
     public void executeMove(ChessMove move, ChessPiece movingPiece) {
         squares[move.startPosition.getRow()][move.startPosition.getColumn()] = null;
         ChessPiece newPiece;
