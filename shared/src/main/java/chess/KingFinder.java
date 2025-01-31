@@ -3,11 +3,9 @@ package chess;
 public class KingFinder {
 
     ChessBoard board;
-    ChessGame.TeamColor teamColor;
 
-    public KingFinder(ChessBoard board, ChessGame.TeamColor teamColor) {
+    public KingFinder(ChessBoard board) {
         this.board = board;
-        this.teamColor = teamColor;
     }
 
     public ChessPosition getKing(ChessGame.TeamColor teamColor) {
@@ -19,7 +17,7 @@ public class KingFinder {
             for (int col = 1; col < 9; col++) {
                 ChessPosition currPosition = new ChessPosition(row, col);
                 ChessPiece currPiece = board.getPiece(currPosition);
-                if (currPiece.getPieceType() == ChessPiece.PieceType.KING && currPiece.getTeamColor() == teamColor) {
+                if (currPiece != null && currPiece.getPieceType() == ChessPiece.PieceType.KING && currPiece.getTeamColor() == teamColor) {
                     return currPosition;
                 }
             }

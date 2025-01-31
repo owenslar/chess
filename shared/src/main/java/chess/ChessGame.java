@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -69,7 +70,23 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        KingFinder kingFinder = new KingFinder(board);
+        ChessPosition kingPos = kingFinder.getKing(teamColor);
+        for (int row = 1; row < 9; row++) {
+            for (int col = 1; col < 9; col++) {
+                ChessPosition currPosition = new ChessPosition(row, col);
+                ChessPiece currPiece = board.getPiece(currPosition);
+                if (currPiece != null && currPiece.getTeamColor() != teamColor) {
+                    Collection<ChessMove> moves = currPiece.pieceMoves(board, currPosition);
+                    for (ChessMove move : moves) {
+                        if (move.getEndPosition().equals(kingPos)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
