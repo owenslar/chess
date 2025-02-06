@@ -10,12 +10,19 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessPiece {
+    private int numMoves;
     private final PieceType type;
     private final ChessGame.TeamColor pieceColor;
 
-    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+    public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type) {
         this.type = type;
         this.pieceColor = pieceColor;
+    }
+
+    public ChessPiece(ChessPiece other) {
+        this.numMoves = other.numMoves;
+        this.type = other.type;
+        this.pieceColor = other.pieceColor;
     }
 
     /**
@@ -65,6 +72,14 @@ public class ChessPiece {
             case ROOK -> new RookMovesCalculator();
             case PAWN -> new PawnMovesCalculator();
         };
+    }
+
+    public void incrementNumMoves() {
+        numMoves += 1;
+    }
+
+    public int getNumMoves() {
+        return numMoves;
     }
 
     @Override
