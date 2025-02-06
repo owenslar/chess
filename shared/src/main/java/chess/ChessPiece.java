@@ -10,7 +10,7 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessPiece {
-    private int numMoves;
+    private int numMoves = 0;
     private final PieceType type;
     private final ChessGame.TeamColor pieceColor;
 

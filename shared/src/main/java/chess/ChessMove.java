@@ -10,6 +10,8 @@ import java.util.Objects;
  */
 public class ChessMove {
 
+    boolean EnPassant = false;
+    boolean Castle = false;
     ChessPosition startPosition;
     ChessPosition endPosition;
     ChessPiece.PieceType promotionPiece;
@@ -48,6 +50,22 @@ public class ChessMove {
      */
     public ChessPiece.PieceType getPromotionPiece() {
         return promotionPiece;
+    }
+
+    public boolean isEnPassant() {
+        return EnPassant;
+    }
+
+    public boolean isCastle() {
+        return Castle;
+    }
+
+    public void setEnPassant(boolean bool) {
+        EnPassant = bool;
+    }
+
+    public void setCastle(boolean bool) {
+        Castle = bool;
     }
 
     @Override
