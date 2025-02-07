@@ -138,6 +138,43 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
                 }
             }
         }
+
+        if (myPiece.getTeamColor() == ChessGame.TeamColor.WHITE && x == 5) {
+            if (y < 8) {
+                ChessPiece rightPawn = board.getPiece(new ChessPosition(x, y + 1));
+                if (rightPawn != null && rightPawn.getPieceType() == ChessPiece.PieceType.PAWN && rightPawn.getNumMoves() == 1 && rightPawn.getJustMoved()) {
+                    ChessMove move = new ChessMove(myPosition, new ChessPosition(x + 1, y + 1));
+                    move.setEnPassant(true);
+                    moves.add(move);
+                }
+            }
+            if (y > 1) {
+                ChessPiece leftPawn = board.getPiece(new ChessPosition(x, y - 1));
+                if (leftPawn != null && leftPawn.getPieceType() == ChessPiece.PieceType.PAWN && leftPawn.getNumMoves() == 1 && leftPawn.getJustMoved()) {
+                    ChessMove move = new ChessMove(myPosition, new ChessPosition(x + 1, y - 1));
+                    move.setEnPassant(true);
+                    moves.add(move);
+                }
+            }
+        }
+        else if (myPiece.getTeamColor() == ChessGame.TeamColor.BLACK && x == 4) {
+            if (y < 8) {
+                ChessPiece rightPawn = board.getPiece(new ChessPosition(x, y + 1));
+                if (rightPawn != null && rightPawn.getPieceType() == ChessPiece.PieceType.PAWN && rightPawn.getNumMoves() == 1 && rightPawn.getJustMoved()) {
+                    ChessMove move = new ChessMove(myPosition, new ChessPosition(x - 1, y + 1));
+                    move.setEnPassant(true);
+                    moves.add(move);
+                }
+            }
+            if (y > 1) {
+                ChessPiece leftPawn = board.getPiece(new ChessPosition(x, y - 1));
+                if (leftPawn != null && leftPawn.getPieceType() == ChessPiece.PieceType.PAWN && leftPawn.getNumMoves() == 1 && leftPawn.getJustMoved()) {
+                    ChessMove move = new ChessMove(myPosition, new ChessPosition(x - 1, y - 1));
+                    move.setEnPassant(true);
+                    moves.add(move);
+                }
+            }
+        }
         return moves;
     }
 }
