@@ -10,6 +10,7 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessPiece {
+    private boolean justMoved = false;
     private int numMoves = 0;
     private final PieceType type;
     private final ChessGame.TeamColor pieceColor;
@@ -23,6 +24,7 @@ public class ChessPiece {
         this.numMoves = other.numMoves;
         this.type = other.type;
         this.pieceColor = other.pieceColor;
+        this.justMoved = other.justMoved;
     }
 
     /**
@@ -72,6 +74,14 @@ public class ChessPiece {
             case ROOK -> new RookMovesCalculator();
             case PAWN -> new PawnMovesCalculator();
         };
+    }
+
+    public void setJustMoved(boolean bool) {
+        justMoved = bool;
+    }
+
+    public boolean getJustMoved() {
+        return justMoved;
     }
 
     public void setNumMoves(int num) {

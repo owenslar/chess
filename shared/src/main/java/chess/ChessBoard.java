@@ -31,6 +31,14 @@ public class ChessBoard implements Iterable<ChessPiece> {
     }
 
     public void executeMove(ChessMove move, ChessPiece movingPiece) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                ChessPiece piece = squares[i][j];
+                if (piece != null) {
+                    piece.setJustMoved(false);
+                }
+            }
+        }
         System.out.println("Entered executeMove");
         if (move.isCastle()) {
             System.out.println("Correctly entered isCastle case");
@@ -62,7 +70,19 @@ public class ChessBoard implements Iterable<ChessPiece> {
 
             }
             movingKing.setNumMoves(movingKing.getNumMoves() + 1);
+            movingKing.setJustMoved(true);
             movingRook.setNumMoves(movingRook.getNumMoves() + 1);
+            movingRook.setJustMoved(true);
+        }
+        else if (move.isEnPassant()) {
+            squares[move.startPosition.getRow() - 1][move.startPosition.getColumn() - 1] = null;
+            int rightOrLeft = move.endPosition.getColumn() - move.startPosition.getColumn();
+            squares[move.startPosition.getRow() - 1][move.startPosition.getColumn() - 1 + rightOrLeft] = null;
+            ChessPiece newPiece = new ChessPiece(movingPiece);
+            newPiece.setJustMoved(true);
+            newPiece.setNumMoves(newPiece.getNumMoves() + 1);
+
+            squares[move.endPosition.getRow() - 1][move.endPosition.getColumn() - 1] = newPiece;
         }
         else {
             squares[move.startPosition.getRow() - 1][move.startPosition.getColumn() - 1] = null;
@@ -70,9 +90,11 @@ public class ChessBoard implements Iterable<ChessPiece> {
             if (move.promotionPiece != null) {
                 newPiece = new ChessPiece(movingPiece.getTeamColor(), move.getPromotionPiece());
                 newPiece.setNumMoves(movingPiece.getNumMoves() + 1);
+                newPiece.setJustMoved(true);
             } else {
                 newPiece = new ChessPiece(movingPiece);
                 newPiece.setNumMoves(movingPiece.getNumMoves() + 1);
+                newPiece.setJustMoved(true);
             }
             squares[move.endPosition.getRow() - 1][move.endPosition.getColumn() - 1] = newPiece;
         }
