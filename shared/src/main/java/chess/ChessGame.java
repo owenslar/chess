@@ -54,9 +54,8 @@ public class ChessGame {
         ChessPiece currPiece = board.getPiece(startPosition);
         Collection<ChessMove> pieceMoves = currPiece.pieceMoves(board, startPosition);
         for (ChessMove move : pieceMoves) {
-            if (!move.isCastle() && !move.isEnPassant()) {
+            if (!move.isCastle()) {
                 ChessBoard clonedBoard = new ChessBoard(board);
-                System.out.println("Calling dummy execute");
                 clonedBoard.executeMove(move, currPiece);
                 ChessGame dummyGame = new ChessGame();
                 dummyGame.setBoard(clonedBoard);
@@ -68,13 +67,11 @@ public class ChessGame {
                 ChessPosition midCastleStartPos = new ChessPosition(move.startPosition.getRow(), move.startPosition.getColumn());
                 ChessPosition midCastleEndPos = new ChessPosition(move.startPosition.getRow(), (move.startPosition.getColumn() + (move.endPosition.getColumn() - move.startPosition.getColumn()) / 2));
                 ChessMove midCastle = new ChessMove(midCastleStartPos, midCastleEndPos);
-                System.out.println("Calling dummy execute");
                 clonedBoard.executeMove(midCastle, currPiece);
                 ChessGame dummyGame = new ChessGame();
                 dummyGame.setBoard(clonedBoard);
                 if (!dummyGame.isInCheck(currPiece.getTeamColor())) {
                     ChessBoard clonedBoard2 = new ChessBoard(board);
-                    System.out.println("Calling dummy execute");
                     clonedBoard2.executeMove(move, currPiece);
                     ChessGame dummyGame2 = new ChessGame();
                     dummyGame.setBoard(clonedBoard2);
@@ -94,7 +91,6 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        System.out.println("Making move: " + move);
         ChessPiece movingPiece = board.getPiece(move.getStartPosition());
         if (movingPiece != null && movingPiece.getTeamColor() == this.getTeamTurn()) {
             Collection<ChessMove> validMoves = this.validMoves(move.getStartPosition());
@@ -103,7 +99,9 @@ public class ChessGame {
                     if (movingPiece.getPieceType() == ChessPiece.PieceType.KING && Math.abs((move.endPosition.getColumn() - move.startPosition.getColumn())) > 1) {
                         move.setCastle(true);
                     }
-                    System.out.println("Calling REAL EXECUTE MOVE on: " + move);
+                    else if (movingPiece.getPieceType() == ChessPiece.PieceType.PAWN && move.startPosition.getColumn() != move.endPosition.getColumn() && board.getPiece(move.endPosition) == null) {
+                        move.setEnPassant(true);
+                    }
                     board.executeMove(move, movingPiece);
                     if (this.getTeamTurn() == TeamColor.WHITE) {
                         this.setTeamTurn(TeamColor.BLACK);

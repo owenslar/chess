@@ -39,9 +39,7 @@ public class ChessBoard implements Iterable<ChessPiece> {
                 }
             }
         }
-        System.out.println("Entered executeMove");
         if (move.isCastle()) {
-            System.out.println("Correctly entered isCastle case");
             ChessPiece movingRook = new ChessPiece(movingPiece.getTeamColor(), ChessPiece.PieceType.ROOK);
             ChessPiece movingKing = new ChessPiece(movingPiece);
 
