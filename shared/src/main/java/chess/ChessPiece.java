@@ -74,8 +74,8 @@ public class ChessPiece {
         };
     }
 
-    public void incrementNumMoves() {
-        numMoves += 1;
+    public void setNumMoves(int num) {
+        numMoves = num;
     }
 
     public int getNumMoves() {

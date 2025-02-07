@@ -47,12 +47,12 @@ public class KingMovesCalculator implements PieceMovesCalculator {
             ChessPiece leftRook = board.getPiece(new ChessPosition(1,1));
             ChessPiece rightRook = board.getPiece(new ChessPosition(1,8));
             if (leftRook != null && leftRook.getPieceType() == ChessPiece.PieceType.ROOK && leftRook.getTeamColor() == ChessGame.TeamColor.WHITE && leftRook.getNumMoves() == 0) {
-                ChessMove leftCastle = new ChessMove(myPosition, new ChessPosition(x - 2, y));
+                ChessMove leftCastle = new ChessMove(myPosition, new ChessPosition(x, y - 2));
                 leftCastle.setCastle(true);
                 moves.add(leftCastle);
             }
             if (rightRook != null && rightRook.getPieceType() == ChessPiece.PieceType.ROOK && rightRook.getTeamColor() == ChessGame.TeamColor.WHITE && rightRook.getNumMoves() == 0) {
-                ChessMove rightCastle = new ChessMove(myPosition, new ChessPosition(x + 2, y));
+                ChessMove rightCastle = new ChessMove(myPosition, new ChessPosition(x, y + 2));
                 rightCastle.setCastle(true);
                 moves.add(rightCastle);
             }
@@ -61,12 +61,12 @@ public class KingMovesCalculator implements PieceMovesCalculator {
             ChessPiece leftRook = board.getPiece(new ChessPosition(8,1));
             ChessPiece rightRook = board.getPiece(new ChessPosition(8,8));
             if (leftRook != null && leftRook.getPieceType() == ChessPiece.PieceType.ROOK && leftRook.getTeamColor() == ChessGame.TeamColor.BLACK && leftRook.getNumMoves() == 0) {
-                ChessMove leftCastle = new ChessMove(myPosition, new ChessPosition(x - 2, y));
+                ChessMove leftCastle = new ChessMove(myPosition, new ChessPosition(x, y - 2));
                 leftCastle.setCastle(true);
                 moves.add(leftCastle);
             }
             if (rightRook != null && rightRook.getPieceType() == ChessPiece.PieceType.ROOK && rightRook.getTeamColor() == ChessGame.TeamColor.BLACK && rightRook.getNumMoves() == 0) {
-                ChessMove rightCastle = new ChessMove(myPosition, new ChessPosition(x + 2, y));
+                ChessMove rightCastle = new ChessMove(myPosition, new ChessPosition(x, y + 2));
                 rightCastle.setCastle(true);
                 moves.add(rightCastle);
             }

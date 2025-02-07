@@ -31,14 +31,51 @@ public class ChessBoard implements Iterable<ChessPiece> {
     }
 
     public void executeMove(ChessMove move, ChessPiece movingPiece) {
-        squares[move.startPosition.getRow() - 1][move.startPosition.getColumn() - 1] = null;
-        ChessPiece newPiece;
-        if (move.promotionPiece != null) {
-            newPiece = new ChessPiece(movingPiece.getTeamColor(), move.getPromotionPiece());
-        } else {
-            newPiece = new ChessPiece(movingPiece.getTeamColor(), movingPiece.getPieceType());
+        System.out.println("Entered executeMove");
+        if (move.isCastle()) {
+            System.out.println("Correctly entered isCastle case");
+            ChessPiece movingRook = new ChessPiece(movingPiece.getTeamColor(), ChessPiece.PieceType.ROOK);
+            ChessPiece movingKing = new ChessPiece(movingPiece);
+
+            // nullify kings old position
+            squares[move.startPosition.getRow() - 1][4] = null;
+
+            // This if statement checks whether the king is castling short-side
+            if ((move.endPosition.getColumn() - move.startPosition.getColumn()) > 0) {
+
+                // nullify rooks old position
+                squares[move.endPosition.getRow() - 1][7] = null;
+
+                // move the king and the rook to correct places
+                squares[move.endPosition.getRow() - 1][6] = movingKing;
+                squares[move.endPosition.getRow() - 1][5] = movingRook;
+
+
+            } else { // this means the king is castling long side
+
+                // nullify rooks old position
+                squares[move.endPosition.getRow() - 1][0] = null;
+
+                // move the king and the rook to correct places
+                squares[move.endPosition.getRow() - 1][move.endPosition.getColumn() - 1] = movingKing;
+                squares[move.endPosition.getRow() - 1][3] = movingRook;
+
+            }
+            movingKing.setNumMoves(movingKing.getNumMoves() + 1);
+            movingRook.setNumMoves(movingRook.getNumMoves() + 1);
         }
-        squares[move.endPosition.getRow() - 1][move.endPosition.getColumn() - 1] = newPiece;
+        else {
+            squares[move.startPosition.getRow() - 1][move.startPosition.getColumn() - 1] = null;
+            ChessPiece newPiece;
+            if (move.promotionPiece != null) {
+                newPiece = new ChessPiece(movingPiece.getTeamColor(), move.getPromotionPiece());
+                newPiece.setNumMoves(movingPiece.getNumMoves() + 1);
+            } else {
+                newPiece = new ChessPiece(movingPiece);
+                newPiece.setNumMoves(movingPiece.getNumMoves() + 1);
+            }
+            squares[move.endPosition.getRow() - 1][move.endPosition.getColumn() - 1] = newPiece;
+        }
     }
 
     @Override
