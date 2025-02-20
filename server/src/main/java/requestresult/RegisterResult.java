@@ -1,4 +1,10 @@
 package requestresult;
 
-record RegisterResult (String username, String authToken, String message, int statusCode){
+import com.google.gson.annotations.Expose;
+
+public record RegisterResult (
+        @Expose String username,
+        @Expose String authToken,
+        @Expose String message,
+        int statusCode) {
 }

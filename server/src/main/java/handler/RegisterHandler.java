@@ -1,16 +1,25 @@
 package handler;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import dataaccess.DataAccessException;
+import requestresult.RegisterRequest;
+import requestresult.RegisterResult;
+import service.UserService;
 import spark.Request;
 import spark.Response;
-import spark.Route;
 
 public class RegisterHandler extends BaseHandler {
+    private final UserService userService = new UserService();
 
 
     @Override
     public Object processRequest(Request request, Response response, String authToken) throws DataAccessException {
-        return null;
+        RegisterRequest registerRequest = new Gson().fromJson(request.body(), RegisterRequest.class);
+        RegisterResult registerResult = userService.register(registerRequest);
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        response.status(registerResult.statusCode());
+        return gson.toJson(registerResult);
     }
 
     @Override
