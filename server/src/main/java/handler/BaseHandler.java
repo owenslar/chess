@@ -7,9 +7,6 @@ import spark.Route;
 
 public abstract class BaseHandler implements Route {
 
-    //
-    //
-    // Maybe put everything in a try-catch to catch DataAccessAcceptions
 
     @Override
     public Object handle(Request request, Response response) throws DataAccessException {
