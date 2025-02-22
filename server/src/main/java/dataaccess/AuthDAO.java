@@ -1,12 +1,17 @@
 package dataaccess;
 
 import model.AuthData;
+import java.util.UUID;
 
-public interface AuthDAO {
+public abstract class AuthDAO {
 
-    AuthData createAuth(String username);
+    abstract void createAuth(AuthData authData) throws DataAccessException;
 
-    AuthData getAuth(String authToken);
+    abstract AuthData getAuth(String authToken) throws DataAccessException;
 
-    void deleteAuth(AuthData a);
+    abstract void deleteAuth(AuthData a) throws DataAccessException;
+
+    public static String generateToken() {
+        return UUID.randomUUID().toString();
+    }
 }

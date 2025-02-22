@@ -3,21 +3,17 @@ package dataaccess;
 import model.AuthData;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
-public class MemoryAuthDAO implements AuthDAO {
+public class MemoryAuthDAO extends AuthDAO {
     private static final ArrayList<AuthData> auths = new ArrayList<>();
 
     @Override
-    public AuthData createAuth(String username) {
-        String authToken = generateToken();
-        AuthData authData = new AuthData(authToken, username);
-        auths.add(authData);
-        return authData;
+    public void createAuth(AuthData a) throws DataAccessException {
+        auths.add(a);
     }
 
     @Override
-    public AuthData getAuth(String authToken) {
+    public AuthData getAuth(String authToken) throws DataAccessException {
         for (AuthData authData : auths) {
             if (authData.authToken().equals(authToken)) {
                 return authData;
@@ -27,11 +23,8 @@ public class MemoryAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void deleteAuth(AuthData a) {
+    public void deleteAuth(AuthData a) throws DataAccessException {
         auths.removeIf(authData -> authData.equals(a));
     }
 
-    private static String generateToken() {
-        return UUID.randomUUID().toString();
-    }
 }
