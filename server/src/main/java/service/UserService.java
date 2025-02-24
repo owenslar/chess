@@ -61,6 +61,12 @@ public class UserService {
             return new LoginResult(null, null, "Error: unauthorized", 401);
         }
 
+        // 3.5. If the user is already logged in, return the authToken they already should be using
+        AuthData loggedInAuthData = authDAO.getAuth(r.username());
+        if (loggedInAuthData != null) {
+            return new LoginResult(r.username(), loggedInAuthData.authToken(), null, 200);
+        }
+
         // 4. If the password matches login the user (generate a new AuthToken model object, insert it into database)
         String authToken = AuthDAO.generateToken();
         AuthData authData = new AuthData(authToken, r.username());

@@ -13,9 +13,9 @@ public class MemoryAuthDAO extends AuthDAO {
     }
 
     @Override
-    public AuthData getAuth(String authToken) throws DataAccessException {
+    public AuthData getAuth(String username) throws DataAccessException {
         for (AuthData authData : auths) {
-            if (authData.authToken().equals(authToken)) {
+            if (authData.username().equals(username)) {
                 return authData;
             }
         }
