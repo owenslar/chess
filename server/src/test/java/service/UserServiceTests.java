@@ -3,6 +3,8 @@ package service;
 import dataaccess.DataAccessException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import requestresult.LoginRequest;
+import requestresult.LoginResult;
 import requestresult.RegisterRequest;
 import requestresult.RegisterResult;
 import org.junit.jupiter.api.Assertions;
@@ -54,5 +56,44 @@ public class UserServiceTests {
         Assertions.assertEquals(403, actual.statusCode());
         Assertions.assertNull(actual.username());
         Assertions.assertNull(actual.authToken());
+    }
+
+    @Test
+    public void positiveLoginRequest() throws DataAccessException {
+        RegisterRequest registerRequest = new RegisterRequest("owenlarson", "foobar", "owlar23@icstudents.org");
+        RegisterResult registerResult = userService.register(registerRequest);
+
+        LoginRequest loginRequest = new LoginRequest("owenlarson", "foobar");
+        LoginResult loginResult = userService.login(loginRequest);
+
+        Assertions.assertEquals(200, loginResult.statusCode());
+        Assertions.assertEquals(registerResult.authToken(), loginResult.authToken());
+        Assertions.assertEquals(registerResult.username(), loginResult.username());
+        Assertions.assertNull(loginResult.message());
+    }
+
+    @Test
+    public void nonExistentUserTest() throws DataAccessException {
+        LoginRequest loginRequest = new LoginRequest("Non-existent-User", "password");
+        LoginResult loginResult = userService.login(loginRequest);
+
+        Assertions.assertEquals(401, loginResult.statusCode());
+        Assertions.assertEquals("Error: unauthorized", loginResult.message());
+        Assertions.assertNull(loginResult.username());
+        Assertions.assertNull(loginResult.authToken());
+    }
+
+    @Test
+    public void wrongPasswordTest() throws DataAccessException {
+        RegisterRequest registerRequest = new RegisterRequest("owen", "larson", "o@bar.com");
+        userService.register(registerRequest);
+
+        LoginRequest loginRequest = new LoginRequest("owen", "lars");
+        LoginResult loginResult = userService.login(loginRequest);
+
+        Assertions.assertEquals(401, loginResult.statusCode());
+        Assertions.assertEquals("Error: unauthorized", loginResult.message());
+        Assertions.assertNull(loginResult.username());
+        Assertions.assertNull(loginResult.authToken());
     }
 }
