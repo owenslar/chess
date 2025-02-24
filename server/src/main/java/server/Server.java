@@ -28,5 +28,6 @@ public class Server {
 
     private static void createRoutes() {
         Spark.post("/user", new RegisterHandler());
+        Spark.post("/session", new LoginHandler());
     }
 }
