@@ -1,9 +1,6 @@
 package service;
 
-import dataaccess.AuthDAO;
-import dataaccess.DataAccessException;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.*;
 import model.AuthData;
 import model.UserData;
 import requestresult.LoginRequest;
@@ -15,12 +12,14 @@ import java.util.Objects;
 
 public class UserService {
 
-    MemoryUserDAO userDAO = new MemoryUserDAO();
-    MemoryAuthDAO authDAO = new MemoryAuthDAO();
+    UserDAO userDAO = DaoFactory.createUserDAO();
+    AuthDAO authDAO = DaoFactory.createAuthDAO();
 
     public RegisterResult register(RegisterRequest r) throws DataAccessException {
         // 1. Verify the input
-        if (r.username() == null || r.username().isEmpty() || r.email() == null || r.email().isEmpty() || r.password() == null || r.password().isEmpty()) {
+        if (r.username() == null || r.username().isEmpty()
+                || r.email() == null || r.email().isEmpty()
+                || r.password() == null || r.password().isEmpty()) {
             return new RegisterResult(null, null, "Error: bad request", 400);
         }
 
@@ -62,7 +61,7 @@ public class UserService {
         }
 
         // 3.5. If the user is already logged in, return the authToken they already should be using
-        AuthData loggedInAuthData = authDAO.getAuth(r.username());
+        AuthData loggedInAuthData = authDAO.getAuthByUsername(r.username());
         if (loggedInAuthData != null) {
             return new LoginResult(r.username(), loggedInAuthData.authToken(), null, 200);
         }
