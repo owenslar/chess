@@ -1,5 +1,7 @@
 package handler;
 
+import dataaccess.AuthDAO;
+import dataaccess.DaoFactory;
 import dataaccess.DataAccessException;
 import spark.Request;
 import spark.Response;
@@ -7,6 +9,7 @@ import spark.Route;
 
 public abstract class BaseHandler implements Route {
 
+    private final AuthDAO authDAO = DaoFactory.createAuthDAO();
 
     @Override
     public Object handle(Request request, Response response) throws DataAccessException {
@@ -16,6 +19,16 @@ public abstract class BaseHandler implements Route {
         if (requiresAuth()) {
             // call the authDao that checks if the authToken is valid and not null and not empty
             // if it is a bad auth then return a 401 unauthorized error
+            if (authToken == null || authToken.isEmpty()) {
+                response.status(401);
+                return "{ \"message\": \"Error: unauthorized\" }";
+            }
+
+            if (authDAO.getAuth(authToken) == null) {
+                response.status(401);
+                return "{ \"message\": \"Error: unauthorized\" }";
+            }
+
         } else {
             authToken = null;
         }
