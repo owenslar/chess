@@ -5,11 +5,13 @@ import java.util.UUID;
 
 public abstract class AuthDAO {
 
-    abstract void createAuth(AuthData authData) throws DataAccessException;
+    public abstract void createAuth(AuthData authData) throws DataAccessException;
 
-    abstract AuthData getAuth(String authToken) throws DataAccessException;
+    public abstract AuthData getAuth(String authToken) throws DataAccessException;
 
-    abstract void deleteAuth(AuthData a) throws DataAccessException;
+    public abstract AuthData getAuthByUsername(String username) throws DataAccessException;
+
+    public abstract void deleteAuth(AuthData a) throws DataAccessException;
 
     public static String generateToken() {
         return UUID.randomUUID().toString();
