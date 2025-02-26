@@ -33,8 +33,8 @@ public class MemoryAuthDAO extends AuthDAO {
     }
 
     @Override
-    public void deleteAuth(AuthData a) throws DataAccessException {
-        auths.removeIf(authData -> authData.equals(a));
+    public void deleteAuth(String authToken) throws DataAccessException {
+        auths.removeIf(authData -> authData.authToken().equals(authToken));
     }
 
 }

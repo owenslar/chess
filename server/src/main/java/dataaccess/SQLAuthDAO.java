@@ -19,7 +19,7 @@ public class SQLAuthDAO extends AuthDAO {
     }
 
     @Override
-    public void deleteAuth(AuthData a) throws DataAccessException {
+    public void deleteAuth(String authToken) throws DataAccessException {
 
     }
 }

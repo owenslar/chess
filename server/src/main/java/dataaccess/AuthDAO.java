@@ -11,7 +11,7 @@ public abstract class AuthDAO {
 
     public abstract AuthData getAuthByUsername(String username) throws DataAccessException;
 
-    public abstract void deleteAuth(AuthData a) throws DataAccessException;
+    public abstract void deleteAuth(String authToken) throws DataAccessException;
 
     public static String generateToken() {
         return UUID.randomUUID().toString();
