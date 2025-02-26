@@ -1,4 +1,8 @@
 package requestresult;
 
-public record LogoutResult (int statusCode) {
+import com.google.gson.annotations.Expose;
+
+public record LogoutResult (
+        @Expose String message,
+        int statusCode) {
 }
