@@ -3,10 +3,7 @@ package service;
 import dataaccess.*;
 import model.AuthData;
 import model.UserData;
-import requestresult.LoginRequest;
-import requestresult.LoginResult;
-import requestresult.RegisterRequest;
-import requestresult.RegisterResult;
+import requestresult.*;
 
 import java.util.Objects;
 
@@ -73,5 +70,18 @@ public class UserService {
 
         // 6. Create a LoginResult and return it
         return new LoginResult(r.username(), authToken, null, 200);
+    }
+
+    public LogoutResult logout(LogoutRequest r) throws DataAccessException {
+        // 1. Verify the input
+        if (r.authToken() == null || r.authToken().isEmpty()) {
+            return new LogoutResult("Error: unauthorized", 401);
+        }
+        // 2. Authorize the user (already done in Base Handler class)
+        // 3. Delete the authorization associated with the given authToken
+        authDAO.deleteAuth(r.authToken());
+
+        // 4. Create a LogoutResult object and return it
+        return new LogoutResult(null, 200);
     }
 }

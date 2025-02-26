@@ -3,10 +3,7 @@ package service;
 import dataaccess.DataAccessException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import requestresult.LoginRequest;
-import requestresult.LoginResult;
-import requestresult.RegisterRequest;
-import requestresult.RegisterResult;
+import requestresult.*;
 import org.junit.jupiter.api.Assertions;
 
 public class UserServiceTests {
@@ -95,5 +92,29 @@ public class UserServiceTests {
         Assertions.assertEquals("Error: unauthorized", loginResult.message());
         Assertions.assertNull(loginResult.username());
         Assertions.assertNull(loginResult.authToken());
+    }
+
+    @Test
+    public void positiveLogoutTest() throws DataAccessException {
+        RegisterRequest registerRequest = new RegisterRequest("owen", "larson", "owen@gmail");
+        RegisterResult registerResult = userService.register(registerRequest);
+
+        LogoutRequest logoutRequest = new LogoutRequest(registerResult.authToken());
+        LogoutResult logoutResult = userService.logout(logoutRequest);
+
+        Assertions.assertEquals(200, logoutResult.statusCode());
+        Assertions.assertNull(logoutResult.message());
+    }
+
+    @Test
+    public void emptyAuthTokenTest() throws DataAccessException {
+        RegisterRequest registerRequest = new RegisterRequest("username", "password", "email");
+        userService.register(registerRequest);
+
+        LogoutRequest logoutRequest = new LogoutRequest("");
+        LogoutResult logoutResult = userService.logout(logoutRequest);
+
+        Assertions.assertEquals(401, logoutResult.statusCode());
+        Assertions.assertEquals("Error: unauthorized", logoutResult.message());
     }
 }
