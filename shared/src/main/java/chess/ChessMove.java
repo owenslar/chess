@@ -10,8 +10,8 @@ import java.util.Objects;
  */
 public class ChessMove {
 
-    boolean EnPassant = false;
-    boolean Castle = false;
+    boolean enPassant = false;
+    boolean castle = false;
     ChessPosition startPosition;
     ChessPosition endPosition;
     ChessPiece.PieceType promotionPiece;
@@ -53,19 +53,19 @@ public class ChessMove {
     }
 
     public boolean isEnPassant() {
-        return EnPassant;
+        return enPassant;
     }
 
     public boolean isCastle() {
-        return Castle;
+        return castle;
     }
 
     public void setEnPassant(boolean bool) {
-        EnPassant = bool;
+        enPassant = bool;
     }
 
     public void setCastle(boolean bool) {
-        Castle = bool;
+        castle = bool;
     }
 
     @Override
@@ -81,7 +81,9 @@ public class ChessMove {
             return false;
         }
         ChessMove chessMove = (ChessMove) o;
-        return Objects.equals(startPosition, chessMove.startPosition) && Objects.equals(endPosition, chessMove.endPosition) && promotionPiece == chessMove.promotionPiece;
+        return Objects.equals(startPosition, chessMove.startPosition) &&
+                Objects.equals(endPosition, chessMove.endPosition) &&
+                promotionPiece == chessMove.promotionPiece;
     }
 
     @Override

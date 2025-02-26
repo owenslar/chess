@@ -43,12 +43,12 @@ public class KnightMovesCalculator implements PieceMovesCalculator {
         return moves;
     }
 
-    private static ChessMove tryMove(ChessBoard board, ChessPosition myPosition, int change_x, int change_y) {
-        int new_x = myPosition.getRow() + change_x;
-        int new_y = myPosition.getColumn() + change_y;
-        if (new_x <= 8 && new_x >= 1 && new_y <= 8 && new_y >= 1) {
+    private static ChessMove tryMove(ChessBoard board, ChessPosition myPosition, int changeX, int changeY) {
+        int newX = myPosition.getRow() + changeX;
+        int newY = myPosition.getColumn() + changeY;
+        if (newX <= 8 && newX >= 1 && newY <= 8 && newY >= 1) {
             ChessPiece myPiece = board.getPiece(myPosition);
-            ChessPosition nextPosition = new ChessPosition(new_x, new_y);
+            ChessPosition nextPosition = new ChessPosition(newX, newY);
             ChessPiece nextPiece = board.getPiece(nextPosition);
             ChessMove move = new ChessMove(myPosition, nextPosition);
             if (nextPiece == null) {

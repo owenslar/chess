@@ -65,7 +65,8 @@ public class ChessGame {
             } else if (move.isCastle() && !isInCheck(currPiece.getTeamColor())) {
                 ChessBoard clonedBoard = new ChessBoard(board);
                 ChessPosition midCastleStartPos = new ChessPosition(move.startPosition.getRow(), move.startPosition.getColumn());
-                ChessPosition midCastleEndPos = new ChessPosition(move.startPosition.getRow(), (move.startPosition.getColumn() + (move.endPosition.getColumn() - move.startPosition.getColumn()) / 2));
+                ChessPosition midCastleEndPos = new ChessPosition(move.startPosition.getRow(), (move.startPosition.getColumn() +
+                                (move.endPosition.getColumn() - move.startPosition.getColumn()) / 2));
                 ChessMove midCastle = new ChessMove(midCastleStartPos, midCastleEndPos);
                 clonedBoard.executeMove(midCastle, currPiece);
                 ChessGame dummyGame = new ChessGame();
@@ -96,10 +97,13 @@ public class ChessGame {
             Collection<ChessMove> validMoves = this.validMoves(move.getStartPosition());
             for (ChessMove validMove : validMoves) {
                 if (move.equals(validMove)) {
-                    if (movingPiece.getPieceType() == ChessPiece.PieceType.KING && Math.abs((move.endPosition.getColumn() - move.startPosition.getColumn())) > 1) {
+                    if (movingPiece.getPieceType() == ChessPiece.PieceType.KING &&
+                            Math.abs((move.endPosition.getColumn() - move.startPosition.getColumn())) > 1) {
                         move.setCastle(true);
                     }
-                    else if (movingPiece.getPieceType() == ChessPiece.PieceType.PAWN && move.startPosition.getColumn() != move.endPosition.getColumn() && board.getPiece(move.endPosition) == null) {
+                    else if (movingPiece.getPieceType() == ChessPiece.PieceType.PAWN &&
+                            move.startPosition.getColumn() != move.endPosition.getColumn() &&
+                            board.getPiece(move.endPosition) == null) {
                         move.setEnPassant(true);
                     }
                     board.executeMove(move, movingPiece);
@@ -126,20 +130,26 @@ public class ChessGame {
     public boolean isInCheck(TeamColor teamColor) {
         KingFinder kingFinder = new KingFinder(board);
         ChessPosition kingPos = kingFinder.getKing(teamColor);
+
         for (int row = 1; row < 9; row++) {
             for (int col = 1; col < 9; col++) {
                 ChessPosition currPosition = new ChessPosition(row, col);
                 ChessPiece currPiece = board.getPiece(currPosition);
-                if (currPiece != null && currPiece.getTeamColor() != teamColor) {
-                    Collection<ChessMove> moves = currPiece.pieceMoves(board, currPosition);
-                    for (ChessMove move : moves) {
-                        if (move.getEndPosition().equals(kingPos)) {
-                            return true;
-                        }
+
+                // Skip empty squares or pieces of the same team
+                if (currPiece == null || currPiece.getTeamColor() == teamColor) {
+                    continue;
+                }
+
+                // Check if any of this piece's moves can reach the king
+                for (ChessMove move : currPiece.pieceMoves(board, currPosition)) {
+                    if (move.getEndPosition().equals(kingPos)) {
+                        return true;
                     }
                 }
             }
         }
+
         return false;
     }
 

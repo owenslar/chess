@@ -1,13 +1,13 @@
 package dataaccess;
 
 public class DaoFactory {
-    private static final boolean use_SQL = false;
+    private static final boolean USE_SQL = false;
 
     public static AuthDAO createAuthDAO() {
-        return use_SQL ? new SQLAuthDAO() : new MemoryAuthDAO();
+        return USE_SQL ? new SQLAuthDAO() : new MemoryAuthDAO();
     }
 
     public static UserDAO createUserDAO() {
-        return use_SQL ? new SQLUserDAO() : new MemoryUserDAO();
+        return USE_SQL ? new SQLUserDAO() : new MemoryUserDAO();
     }
 }
