@@ -15,11 +15,11 @@ public class CreateHandler extends BaseHandler {
 
     @Override
     protected Object processRequest(Request req, Response res, String authToken) throws DataAccessException {
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
-        CreateRequest tempRequest = gson.fromJson(req.body(), CreateRequest.class);
+        CreateRequest tempRequest = new Gson().fromJson(req.body(), CreateRequest.class);
         CreateRequest createRequest = new CreateRequest(tempRequest.gameName(), authToken);
 
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
         CreateResult createResult = gameService.create(createRequest);
         res.status(createResult.statusCode());
 
