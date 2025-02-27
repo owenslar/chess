@@ -17,8 +17,6 @@ public abstract class BaseHandler implements Route {
         String authToken = request.headers("authorization");
 
         if (requiresAuth()) {
-            // call the authDao that checks if the authToken is valid and not null and not empty
-            // if it is a bad auth then return a 401 unauthorized error
             if (authToken == null || authToken.isEmpty()) {
                 response.status(401);
                 return "{ \"message\": \"Error: unauthorized\" }";
