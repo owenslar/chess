@@ -10,4 +10,8 @@ public class DaoFactory {
     public static UserDAO createUserDAO() {
         return USE_SQL ? new SQLUserDAO() : new MemoryUserDAO();
     }
+
+    public static GameDAO createGameDAO() {
+        return USE_SQL ? new SQLGameDAO() : new MemoryGameDAO();
+    }
 }
