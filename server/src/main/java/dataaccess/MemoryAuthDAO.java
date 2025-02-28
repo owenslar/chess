@@ -37,4 +37,9 @@ public class MemoryAuthDAO extends AuthDAO {
         AUTHS.removeIf(authData -> authData.authToken().equals(authToken));
     }
 
+    @Override
+    public void clear() throws DataAccessException {
+        AUTHS.clear();
+    }
+
 }

@@ -13,6 +13,8 @@ public abstract class AuthDAO {
 
     public abstract void deleteAuth(String authToken) throws DataAccessException;
 
+    public abstract void clear() throws DataAccessException;
+
     public static String generateToken() {
         return UUID.randomUUID().toString();
     }

@@ -12,4 +12,9 @@ public class SQLUserDAO implements UserDAO {
     public UserData getUser(String username) throws DataAccessException {
         return null;
     }
+
+    @Override
+    public void clear() throws DataAccessException {
+
+    }
 }
