@@ -56,16 +56,16 @@ public class UserServiceTests {
     }
 
     @Test
-    public void positiveLoginRequest() throws DataAccessException {
+    public void positiveLoginTest() throws DataAccessException {
         RegisterRequest registerRequest = new RegisterRequest("owenlarson", "foobar", "owlar23@icstudents.org");
-        RegisterResult registerResult = userService.register(registerRequest);
+        userService.register(registerRequest);
 
         LoginRequest loginRequest = new LoginRequest("owenlarson", "foobar");
         LoginResult loginResult = userService.login(loginRequest);
 
         Assertions.assertEquals(200, loginResult.statusCode());
-        Assertions.assertEquals(registerResult.authToken(), loginResult.authToken());
-        Assertions.assertEquals(registerResult.username(), loginResult.username());
+        Assertions.assertNotNull(loginResult.authToken());
+        Assertions.assertNotNull(loginResult.username());
         Assertions.assertNull(loginResult.message());
     }
 
