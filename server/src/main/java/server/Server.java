@@ -31,5 +31,6 @@ public class Server {
         Spark.post("/session", new LoginHandler());
         Spark.delete("/session", new LogoutHandler());
         Spark.post("/game", new CreateHandler());
+        Spark.delete("/db", new ClearHandler());
     }
 }
