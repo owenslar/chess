@@ -19,4 +19,9 @@ public class ClearHandler extends BaseHandler {
         res.status(clearResult.statusCode());
         return gson.toJson(clearResult);
     }
+
+    @Override
+    protected boolean requiresAuth() {
+        return false;
+    }
 }
