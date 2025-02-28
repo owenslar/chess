@@ -13,10 +13,6 @@ public class SQLAuthDAO extends AuthDAO {
         return null;
     }
 
-    @Override
-    public AuthData getAuthByUsername(String username) throws DataAccessException {
-        return null;
-    }
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {

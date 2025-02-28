@@ -9,8 +9,6 @@ public abstract class AuthDAO {
 
     public abstract AuthData getAuth(String authToken) throws DataAccessException;
 
-    public abstract AuthData getAuthByUsername(String username) throws DataAccessException;
-
     public abstract void deleteAuth(String authToken) throws DataAccessException;
 
     public abstract void clear() throws DataAccessException;

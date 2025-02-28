@@ -2,31 +2,21 @@ package dataaccess;
 
 import model.AuthData;
 
-import java.util.ArrayList;
+import java.util.*;
 
 public class MemoryAuthDAO extends AuthDAO {
-    private static final ArrayList<AuthData> AUTHS = new ArrayList<>();
+    private static final HashMap<String, List<String>> AUTHS = new HashMap<>();
 
     @Override
     public void createAuth(AuthData a) throws DataAccessException {
-        AUTHS.add(a);
+        AUTHS.computeIfAbsent(a.username(), k -> new ArrayList<>()).add(a.authToken());
     }
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
-        for (AuthData authData : AUTHS) {
-            if (authData.authToken().equals(authToken)) {
-                return authData;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public AuthData getAuthByUsername(String username) throws DataAccessException {
-        for (AuthData authData : AUTHS) {
-            if (authData.username().equals(username)) {
-                return authData;
+        for (Map.Entry<String, List<String>>  entry : AUTHS.entrySet()) {
+            if (entry.getValue().contains(authToken)) {
+                return new AuthData(authToken, entry.getKey());
             }
         }
         return null;
@@ -34,7 +24,7 @@ public class MemoryAuthDAO extends AuthDAO {
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
-        AUTHS.removeIf(authData -> authData.authToken().equals(authToken));
+        AUTHS.entrySet().removeIf(entry -> entry.getValue().contains(authToken));
     }
 
     @Override
