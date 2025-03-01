@@ -1,7 +1,11 @@
 package server;
 
+import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import handler.*;
 import spark.*;
+
+import java.util.Map;
 
 public class Server {
 
@@ -14,8 +18,7 @@ public class Server {
         createRoutes();
         // YOU NEED TO CATCH DATAACCESSEXCEPTION HERE
 
-        //This line initializes the server and can be removed once you have a functioning endpoint 
-        Spark.init();
+        Spark.exception(DataAccessException.class, this::errorHandler);
 
         Spark.awaitInitialization();
         return Spark.port();
@@ -34,5 +37,12 @@ public class Server {
         Spark.delete("/db", new ClearHandler());
         Spark.get("/game", new ListHandler());
         Spark.put("/game", new JoinHandler());
+    }
+
+    public void errorHandler(Exception e, Request req, Response res) {
+        var body = new Gson().toJson(Map.of("message", String.format("Error: %s", e.getMessage())));
+        res.type("application/json");
+        res.status(500);
+        res.body(body);
     }
 }
