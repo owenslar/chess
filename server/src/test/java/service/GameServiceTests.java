@@ -11,6 +11,8 @@ public class GameServiceTests {
     GameService gameService;
     UserService userService;
     ClearService clearService;
+    RegisterRequest registerRequest;
+    RegisterResult registerResult;
 
     @BeforeEach
     public void setUp() throws DataAccessException {
@@ -18,13 +20,12 @@ public class GameServiceTests {
         gameService = new GameService();
         clearService = new ClearService();
         clearService.clear();
+        registerRequest = new RegisterRequest("username", "password", "foor@bar");
+        registerResult = userService.register(registerRequest);
     }
 
     @Test
     public void positiveCreateTest() throws DataAccessException {
-        RegisterRequest registerRequest = new RegisterRequest("username", "password", "foor@bar");
-        RegisterResult registerResult = userService.register(registerRequest);
-
         CreateRequest createRequest = new CreateRequest("newGame", registerResult.authToken());
         CreateResult createResult = gameService.create(createRequest);
 
@@ -35,9 +36,6 @@ public class GameServiceTests {
 
     @Test
     public void badRequestCreateTest() throws DataAccessException {
-        RegisterRequest registerRequest = new RegisterRequest("username", "password", "email");
-        RegisterResult registerResult = userService.register(registerRequest);
-
         CreateRequest createRequest = new CreateRequest("", registerResult.authToken());
         CreateResult createResult = gameService.create(createRequest);
 
@@ -48,9 +46,6 @@ public class GameServiceTests {
 
     @Test
     public void positiveListTest() throws DataAccessException {
-        RegisterRequest registerRequest = new RegisterRequest("username", "password", "foor@bar");
-        RegisterResult registerResult = userService.register(registerRequest);
-
         CreateRequest createRequest = new CreateRequest("newGame", registerResult.authToken());
         gameService.create(createRequest);
 
@@ -65,9 +60,6 @@ public class GameServiceTests {
 
     @Test
     public void emptyAuthTokenListRequestTest() throws DataAccessException {
-        RegisterRequest registerRequest = new RegisterRequest("username", "password", "foor@bar");
-        RegisterResult registerResult = userService.register(registerRequest);
-
         CreateRequest createRequest = new CreateRequest("newGame", registerResult.authToken());
         gameService.create(createRequest);
 
@@ -77,5 +69,29 @@ public class GameServiceTests {
         Assertions.assertNull(listResult.games());
         Assertions.assertEquals(401, listResult.statusCode());
         Assertions.assertEquals("Error: unauthorized", listResult.message());
+    }
+
+    @Test
+    public void positiveJoinTest() throws DataAccessException {
+        CreateRequest createRequest = new CreateRequest("newGame", registerResult.authToken());
+        CreateResult createResult = gameService.create(createRequest);
+
+        JoinRequest joinRequest = new JoinRequest(registerResult.authToken(), "WHITE", createResult.gameID());
+        JoinResult joinResult = gameService.join(joinRequest);
+
+        Assertions.assertNull(joinResult.message());
+        Assertions.assertEquals(200, joinResult.statusCode());
+    }
+
+    @Test
+    public void badRequestJoinTest() throws DataAccessException {
+        CreateRequest createRequest = new CreateRequest("newGame", registerResult.authToken());
+        CreateResult createResult = gameService.create(createRequest);
+
+        JoinRequest joinRequest = new JoinRequest(registerResult.authToken(), "", createResult.gameID());
+        JoinResult joinResult = gameService.join(joinRequest);
+
+        Assertions.assertEquals("Error: bad request", joinResult.message());
+        Assertions.assertEquals(400, joinResult.statusCode());
     }
 }
