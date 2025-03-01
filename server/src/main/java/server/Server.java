@@ -33,5 +33,6 @@ public class Server {
         Spark.post("/game", new CreateHandler());
         Spark.delete("/db", new ClearHandler());
         Spark.get("/game", new ListHandler());
+        Spark.put("/game", new JoinHandler());
     }
 }
