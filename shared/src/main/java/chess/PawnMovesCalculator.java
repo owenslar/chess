@@ -5,7 +5,9 @@ import java.util.Collection;
 
 public class PawnMovesCalculator implements PieceMovesCalculator {
 
-    public void addDoublePawnMove(ChessBoard board, Collection<ChessMove> moves, ChessPosition myPosition, int initialRow, int direction, ChessGame.TeamColor teamColor) {
+    public void addDoublePawnMove(ChessBoard board, Collection<ChessMove> moves,
+                                  ChessPosition myPosition, int initialRow,
+                                  int direction, ChessGame.TeamColor teamColor) {
         ChessPiece myPiece = board.getPiece(myPosition);
         int x = myPosition.getRow();
         int y = myPosition.getColumn();
@@ -22,7 +24,9 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         }
     }
 
-    public void addBasePawnMoves(ChessBoard board, Collection<ChessMove> moves, ChessPosition myPosition, ChessGame.TeamColor teamColor, int direction, int boundary) {
+    public void addBasePawnMoves(ChessBoard board, Collection<ChessMove> moves,
+                                 ChessPosition myPosition, ChessGame.TeamColor teamColor,
+                                 int direction, int boundary) {
         ChessPiece myPiece = board.getPiece(myPosition);
         int x = myPosition.getRow();
         int y = myPosition.getColumn();
@@ -53,7 +57,9 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         }
     }
 
-    public void addPromotionMoves(ChessBoard board, Collection<ChessMove> moves, ChessPosition myPosition, ChessGame.TeamColor teamColor, int direction, int promotionRow) {
+    public void addPromotionMoves(ChessBoard board, Collection<ChessMove> moves,
+                                  ChessPosition myPosition, ChessGame.TeamColor teamColor,
+                                  int direction, int promotionRow) {
         ChessPiece myPiece = board.getPiece(myPosition);
         int x = myPosition.getRow();
         int y = myPosition.getColumn();
@@ -88,7 +94,9 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         moves.add(new ChessMove(from, to, ChessPiece.PieceType.KNIGHT));
     }
 
-    public void addEnPassantMoves(ChessBoard board, Collection<ChessMove> moves, ChessPosition myPosition, ChessGame.TeamColor teamColor, int direction, int enPassantRow) {
+    public void addEnPassantMoves(ChessBoard board, Collection<ChessMove> moves,
+                                  ChessPosition myPosition, ChessGame.TeamColor teamColor,
+                                  int direction, int enPassantRow) {
         ChessPiece myPiece = board.getPiece(myPosition);
         int x = myPosition.getRow();
         int y = myPosition.getColumn();
@@ -96,7 +104,8 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         if (myPiece.getTeamColor() == teamColor && x == enPassantRow) {
             if (y < 8) {
                 ChessPiece rightPawn = board.getPiece(new ChessPosition(x, y + 1));
-                if (rightPawn != null && rightPawn.getPieceType() == ChessPiece.PieceType.PAWN && rightPawn.getNumMoves() == 1 && rightPawn.getJustMoved()) {
+                if (rightPawn != null && rightPawn.getPieceType() == ChessPiece.PieceType.PAWN &&
+                        rightPawn.getNumMoves() == 1 && rightPawn.getJustMoved()) {
                     ChessMove move = new ChessMove(myPosition, new ChessPosition(x + direction, y + 1));
                     move.setEnPassant(true);
                     moves.add(move);
@@ -104,7 +113,8 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
             }
             if (y > 1) {
                 ChessPiece leftPawn = board.getPiece(new ChessPosition(x, y - 1));
-                if (leftPawn != null && leftPawn.getPieceType() == ChessPiece.PieceType.PAWN && leftPawn.getNumMoves() == 1 && leftPawn.getJustMoved()) {
+                if (leftPawn != null && leftPawn.getPieceType() == ChessPiece.PieceType.PAWN &&
+                        leftPawn.getNumMoves() == 1 && leftPawn.getJustMoved()) {
                     ChessMove move = new ChessMove(myPosition, new ChessPosition(x + direction, y - 1));
                     move.setEnPassant(true);
                     moves.add(move);
