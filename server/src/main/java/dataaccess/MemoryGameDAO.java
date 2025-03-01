@@ -3,43 +3,36 @@ package dataaccess;
 import model.GameData;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MemoryGameDAO implements GameDAO {
 
     private final AtomicInteger gameIDCounter = new AtomicInteger(0);
-    private final static ArrayList<GameData> GAMES = new ArrayList<>();
+    private final static Map<Integer, GameData> GAMES = new HashMap<>();
 
     @Override
     public Integer createGame(GameData game) throws DataAccessException {
         int gameID = gameIDCounter.incrementAndGet();
         GameData newGame = new GameData(gameID, game.whiteUsername(), game.blackUsername(), game.gameName(), game.game());
-        GAMES.add(newGame);
+        GAMES.put(gameID, newGame);
         return gameID;
     }
 
     @Override
     public GameData getGame(int gameId) throws DataAccessException {
-        for (GameData game : GAMES) {
-            if (game.gameID() == gameId) {
-                return game;
-            }
-        }
-        return null;
+        return GAMES.get(gameId);
     }
 
     @Override
     public ArrayList<GameData> listGames() throws DataAccessException {
-        return GAMES;
+        return new ArrayList<>(GAMES.values());
     }
 
     @Override
     public void updateGame(GameData gameData) throws DataAccessException {
-        for (int i = 0; i < GAMES.size(); i++) {
-            if (GAMES.get(i).gameID() == gameData.gameID()) {
-                GAMES.set(i, gameData);
-            }
-        }
+        GAMES.put(gameData.gameID(), gameData);
     }
 
     @Override
