@@ -1,12 +1,12 @@
 package requestresult;
 
 import com.google.gson.annotations.Expose;
-import model.GameData;
+import dtos.GameSummary;
 
 import java.util.List;
 
 public record ListResult(
-        @Expose List<GameData> games,
+        @Expose List<GameSummary> games,
         @Expose String message,
         int statusCode) {
 }

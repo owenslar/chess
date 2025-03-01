@@ -1,12 +1,13 @@
 package dtos;
 
+import com.google.gson.annotations.Expose;
 import model.GameData;
 
 public record GameSummary(
-        int gameID,
-        String whiteUsername,
-        String blackUsername,
-        String gameName) {
+        @Expose int gameID,
+        @Expose String whiteUsername,
+        @Expose String blackUsername,
+        @Expose String gameName) {
 
     public static GameSummary from(GameData gameData) {
         return new GameSummary(
