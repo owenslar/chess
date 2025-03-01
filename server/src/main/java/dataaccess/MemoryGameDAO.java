@@ -3,14 +3,19 @@ package dataaccess;
 import model.GameData;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MemoryGameDAO implements GameDAO {
 
+    private final AtomicInteger gameIDCounter = new AtomicInteger(0);
     private final static ArrayList<GameData> GAMES = new ArrayList<>();
 
     @Override
-    public void createGame(GameData game) throws DataAccessException {
-        GAMES.add(game);
+    public Integer createGame(GameData game) throws DataAccessException {
+        int gameID = gameIDCounter.incrementAndGet();
+        GameData newGame = new GameData(gameID, game.whiteUsername(), game.blackUsername(), game.gameName(), game.game());
+        GAMES.add(newGame);
+        return gameID;
     }
 
     @Override

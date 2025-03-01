@@ -6,8 +6,9 @@ import java.util.ArrayList;
 
 public class SQLGameDAO implements GameDAO {
     @Override
-    public void createGame(GameData gameData) throws DataAccessException{
-
+    public Integer createGame(GameData gameData) throws DataAccessException {
+        // MAKE SURE TO USE AUTO_INCREMENT FOR THIS
+        return null;
     }
 
     @Override
