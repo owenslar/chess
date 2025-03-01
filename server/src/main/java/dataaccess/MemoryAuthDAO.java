@@ -24,7 +24,11 @@ public class MemoryAuthDAO extends AuthDAO {
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
-        AUTHS.entrySet().removeIf(entry -> entry.getValue().contains(authToken));
+        for (Map.Entry<String, List<String>> entry : AUTHS.entrySet()) {
+            if (entry.getValue().remove(authToken)) {
+                break;
+            }
+        }
     }
 
     @Override
