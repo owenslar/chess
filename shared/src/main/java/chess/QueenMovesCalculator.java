@@ -3,152 +3,23 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class QueenMovesCalculator implements PieceMovesCalculator {
+public class QueenMovesCalculator extends DirectionalPieceMoves {
 
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece myPiece = board.getPiece(myPosition);
-        int x = myPosition.getRow();
-        int y = myPosition.getColumn();
         Collection<ChessMove> moves = new ArrayList<>();
-        while (x < 8) {
-            ChessPosition nextPosition = new ChessPosition(x + 1, y);
-            ChessPiece nextPiece = board.getPiece(nextPosition);
-            ChessMove move = new ChessMove(myPosition, nextPosition);
-            if (nextPiece == null) {
-                moves.add(move);
-            }
-            else {
-                if (nextPiece.getTeamColor() != myPiece.getTeamColor()) {
-                    moves.add(move);
-                }
-                break;
-            }
-            x += 1;
-        }
-        x = myPosition.getRow();
-        y = myPosition.getColumn();
-        while (x > 1) {
-            ChessPosition nextPosition = new ChessPosition(x - 1, y);
-            ChessPiece nextPiece = board.getPiece(nextPosition);
-            ChessMove move = new ChessMove(myPosition, nextPosition);
-            if (nextPiece == null) {
-                moves.add(move);
-            }
-            else {
-                if (nextPiece.getTeamColor() != myPiece.getTeamColor()) {
-                    moves.add(move);
-                }
-                break;
-            }
-            x -= 1;
-        }
-        x = myPosition.getRow();
-        y = myPosition.getColumn();
-        while (y > 1) {
-            ChessPosition nextPosition = new ChessPosition(x, y - 1);
-            ChessPiece nextPiece = board.getPiece(nextPosition);
-            ChessMove move = new ChessMove(myPosition, nextPosition);
-            if (nextPiece == null) {
-                moves.add(move);
-            }
-            else {
-                if (nextPiece.getTeamColor() != myPiece.getTeamColor()) {
-                    moves.add(move);
-                }
-                break;
-            }
-            y -= 1;
-        }
-        x = myPosition.getRow();
-        y = myPosition.getColumn();
-        while (y < 8) {
-            ChessPosition nextPosition = new ChessPosition(x, y + 1);
-            ChessPiece nextPiece = board.getPiece(nextPosition);
-            ChessMove move = new ChessMove(myPosition, nextPosition);
-            if (nextPiece == null) {
-                moves.add(move);
-            }
-            else {
-                if (nextPiece.getTeamColor() != myPiece.getTeamColor()) {
-                    moves.add(move);
-                }
-                break;
-            }
-            y += 1;
-        }
-        x = myPosition.getRow();
-        y = myPosition.getColumn();
-        while (x < 8 && y < 8) {
-            ChessPosition nextPosition = new ChessPosition(x + 1, y + 1);
-            ChessPiece nextPiece = board.getPiece(nextPosition);
-            ChessMove move = new ChessMove(myPosition, nextPosition);
-            if (nextPiece == null) {
-                moves.add(move);
-            }
-            else {
-                if (nextPiece.getTeamColor() != myPiece.getTeamColor()) {
-                    moves.add(move);
-                }
-                break;
-            }
-            x += 1;
-            y += 1;
-        }
-        x = myPosition.getRow();
-        y = myPosition.getColumn();
-        while (x < 8 && y > 1) {
-            ChessPosition nextPosition = new ChessPosition(x + 1, y - 1);
-            ChessPiece nextPiece = board.getPiece(nextPosition);
-            ChessMove move = new ChessMove(myPosition, nextPosition);
-            if (nextPiece == null) {
-                moves.add(move);
-            }
-            else {
-                if (nextPiece.getTeamColor() != myPiece.getTeamColor()) {
-                    moves.add(move);
-                }
-                break;
-            }
-            x += 1;
-            y -= 1;
-        }
-        x = myPosition.getRow();
-        y = myPosition.getColumn();
-        while (x > 1 && y < 8) {
-            ChessPosition nextPosition = new ChessPosition(x - 1, y + 1);
-            ChessPiece nextPiece = board.getPiece(nextPosition);
-            ChessMove move = new ChessMove(myPosition, nextPosition);
-            if (nextPiece == null) {
-                moves.add(move);
-            }
-            else {
-                if (nextPiece.getTeamColor() != myPiece.getTeamColor()) {
-                    moves.add(move);
-                }
-                break;
-            }
-            x -= 1;
-            y += 1;
-        }
-        x = myPosition.getRow();
-        y = myPosition.getColumn();
-        while (x > 1 && y > 1) {
-            ChessPosition nextPosition = new ChessPosition(x - 1, y - 1);
-            ChessPiece nextPiece = board.getPiece(nextPosition);
-            ChessMove move = new ChessMove(myPosition, nextPosition);
-            if (nextPiece == null) {
-                moves.add(move);
-            }
-            else {
-                if (nextPiece.getTeamColor() != myPiece.getTeamColor()) {
-                    moves.add(move);
-                }
-                break;
-            }
-            x -= 1;
-            y -= 1;
-        }
+
+        addDirectionalMoves(board, moves, myPosition, myPiece, 1, 1);  // Up-right
+        addDirectionalMoves(board, moves, myPosition, myPiece, 1, -1); // Up-left
+        addDirectionalMoves(board, moves, myPosition, myPiece, -1, 1); // Down-right
+        addDirectionalMoves(board, moves, myPosition, myPiece, -1, -1); // Down-left
+
+        addDirectionalMoves(board, moves, myPosition, myPiece, 1, 0);  // Right
+        addDirectionalMoves(board, moves, myPosition, myPiece, -1, 0); // Left
+        addDirectionalMoves(board, moves, myPosition, myPiece, 0, -1); // Down
+        addDirectionalMoves(board, moves, myPosition, myPiece, 0, 1);  // Up
+
         return moves;
     }
 }
