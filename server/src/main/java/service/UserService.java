@@ -3,9 +3,8 @@ package service;
 import dataaccess.*;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import requestresult.*;
-
-import java.util.Objects;
 
 public class UserService {
 
@@ -31,7 +30,7 @@ public class UserService {
         }
 
         // 3. Create a new User model object: User u = new User(...)
-        UserData u = new UserData(r.username(), r.password(), r.email());
+        UserData u = new UserData(r.username(), hashPassword(r.password()), r.email());
 
         // 4. Insert new User into the database by calling UserDao.createUser(u)
         userDAO.createUser(u);
@@ -58,7 +57,7 @@ public class UserService {
         }
 
         // 3. If the username exists, check if the password matches
-        if (!Objects.equals(user.password(), r.password())) {
+        if (!comparePasswords(r.password(), user.password())) {
             return new LoginResult(null, null, "Error: unauthorized", 401);
         }
 
@@ -83,4 +82,13 @@ public class UserService {
         // 4. Create a LogoutResult object and return it
         return new LogoutResult(null, 200);
     }
+
+    private String hashPassword(String rawPassword) {
+        return BCrypt.hashpw(rawPassword, BCrypt.gensalt());
+    }
+
+    private boolean comparePasswords(String rawPassword, String hashedPassword) {
+        return BCrypt.checkpw(rawPassword, hashedPassword);
+    }
+
 }
