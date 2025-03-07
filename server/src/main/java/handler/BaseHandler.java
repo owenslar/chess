@@ -1,7 +1,6 @@
 package handler;
 
 import dataaccess.AuthDAO;
-import dataaccess.DaoFactory;
 import dataaccess.DataAccessException;
 import spark.Request;
 import spark.Response;
@@ -9,7 +8,11 @@ import spark.Route;
 
 public abstract class BaseHandler implements Route {
 
-    private final AuthDAO authDAO = DaoFactory.createAuthDAO();
+    private final AuthDAO authDAO;
+
+    public BaseHandler(AuthDAO authDAO) {
+        this.authDAO = authDAO;
+    }
 
     @Override
     public Object handle(Request request, Response response) throws DataAccessException {

@@ -1,6 +1,9 @@
 package service;
 
+import dataaccess.AuthDAO;
+import dataaccess.DaoFactory;
 import dataaccess.DataAccessException;
+import dataaccess.UserDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import requestresult.*;
@@ -12,7 +15,9 @@ public class UserServiceTests {
 
     @BeforeEach
     public void setUp() {
-        userService = new UserService();
+        UserDAO userDAO = DaoFactory.createUserDAO();
+        AuthDAO authDAO = DaoFactory.createAuthDAO();
+        userService = new UserService(userDAO, authDAO);
     }
 
 

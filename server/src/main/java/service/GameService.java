@@ -2,7 +2,6 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.AuthDAO;
-import dataaccess.DaoFactory;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import dtos.GameSummary;
@@ -16,8 +15,13 @@ import java.util.Objects;
 
 public class GameService {
 
-    GameDAO gameDAO = DaoFactory.createGameDAO();
-    AuthDAO authDAO = DaoFactory.createAuthDAO();
+    private final GameDAO gameDAO;
+    private final AuthDAO authDAO;
+
+    public GameService(GameDAO gameDAO, AuthDAO authDAO) {
+        this.gameDAO = gameDAO;
+        this.authDAO = authDAO;
+    }
 
     public CreateResult create(CreateRequest r) throws DataAccessException {
         // 1. Verify the input

@@ -1,6 +1,6 @@
 package service;
 
-import dataaccess.DataAccessException;
+import dataaccess.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,12 +13,18 @@ public class GameServiceTests {
     ClearService clearService;
     RegisterRequest registerRequest;
     RegisterResult registerResult;
+    UserDAO userDAO;
+    AuthDAO authDAO;
+    GameDAO gameDAO;
 
     @BeforeEach
     public void setUp() throws DataAccessException {
-        userService = new UserService();
-        gameService = new GameService();
-        clearService = new ClearService();
+        this.userDAO = DaoFactory.createUserDAO();
+        this.authDAO = DaoFactory.createAuthDAO();
+        this.gameDAO = DaoFactory.createGameDAO();
+        userService = new UserService(userDAO, authDAO);
+        gameService = new GameService(gameDAO, authDAO);
+        clearService = new ClearService(userDAO, gameDAO, authDAO);
         clearService.clear();
         registerRequest = new RegisterRequest("username", "password", "foor@bar");
         registerResult = userService.register(registerRequest);

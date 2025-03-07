@@ -2,6 +2,7 @@ package handler;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import requestresult.JoinRequest;
 import requestresult.JoinResult;
@@ -11,7 +12,12 @@ import spark.Response;
 
 public class JoinHandler extends BaseHandler {
 
-    GameService gameService = new GameService();
+    private final GameService gameService;
+
+    public JoinHandler(AuthDAO authDAO, GameService gameService) {
+        super(authDAO);
+        this.gameService = gameService;
+    }
 
     @Override
     protected Object processRequest(Request req, Response res, String authToken) throws DataAccessException {

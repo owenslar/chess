@@ -2,6 +2,7 @@ package handler;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import requestresult.ClearResult;
 import service.ClearService;
@@ -10,7 +11,12 @@ import spark.Response;
 
 public class ClearHandler extends BaseHandler {
 
-    ClearService clearService = new ClearService();
+    private final ClearService clearService;
+
+    public ClearHandler(AuthDAO authDAO, ClearService clearService) {
+        super(authDAO);
+        this.clearService = clearService;
+    }
 
     @Override
     protected Object processRequest(Request req, Response res, String authToken) throws DataAccessException {

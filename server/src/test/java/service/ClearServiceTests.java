@@ -17,12 +17,12 @@ public class ClearServiceTests {
 
     @BeforeEach
     public void setUp() {
-        clearService = new ClearService();
-        userService = new UserService();
-        gameService = new GameService();
         authDAO = DaoFactory.createAuthDAO();
         userDAO = DaoFactory.createUserDAO();
         gameDAO = DaoFactory.createGameDAO();
+        clearService = new ClearService(userDAO, gameDAO, authDAO);
+        userService = new UserService(userDAO, authDAO);
+        gameService = new GameService(gameDAO, authDAO);
     }
 
     @Test

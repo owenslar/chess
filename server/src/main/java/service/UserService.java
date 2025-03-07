@@ -9,8 +9,13 @@ import java.util.Objects;
 
 public class UserService {
 
-    UserDAO userDAO = DaoFactory.createUserDAO();
-    AuthDAO authDAO = DaoFactory.createAuthDAO();
+    private final UserDAO userDAO;
+    private final AuthDAO authDAO;
+
+    public UserService (UserDAO userDAO, AuthDAO authDAO) {
+        this.userDAO = userDAO;
+        this.authDAO = authDAO;
+    }
 
     public RegisterResult register(RegisterRequest r) throws DataAccessException {
         // 1. Verify the input

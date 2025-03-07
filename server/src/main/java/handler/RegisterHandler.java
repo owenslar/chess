@@ -2,6 +2,7 @@ package handler;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import requestresult.RegisterRequest;
 import requestresult.RegisterResult;
@@ -10,8 +11,12 @@ import spark.Request;
 import spark.Response;
 
 public class RegisterHandler extends BaseHandler {
-    private final UserService userService = new UserService();
+    private final UserService userService;
 
+    public RegisterHandler(AuthDAO authDAO, UserService userService) {
+        super(authDAO);
+        this.userService = userService;
+    }
 
     @Override
     public Object processRequest(Request request, Response response, String authToken) throws DataAccessException {
