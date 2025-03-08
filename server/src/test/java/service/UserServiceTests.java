@@ -4,6 +4,7 @@ import dataaccess.AuthDAO;
 import dataaccess.DaoFactory;
 import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import requestresult.*;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Assertions;
 public class UserServiceTests {
 
     private UserService userService;
+    private final UserDAO userDAO = DaoFactory.createUserDAO();
 
     @BeforeEach
     public void setUp() {
@@ -121,5 +123,14 @@ public class UserServiceTests {
 
         Assertions.assertEquals(401, logoutResult.statusCode());
         Assertions.assertEquals("Error: unauthorized", logoutResult.message());
+    }
+
+    @AfterEach
+    public void cleanUpDB() {
+        try {
+            userDAO.clear();
+        } catch (DataAccessException e) {
+            Assertions.fail("failed to clean db");
+        }
     }
 }
