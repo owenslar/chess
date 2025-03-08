@@ -2,6 +2,8 @@ package dataaccess;
 
 import model.AuthData;
 
+import java.sql.SQLException;
+
 import static dataaccess.DBUtils.executeStatement;
 
 public class SQLAuthDAO extends AuthDAO {
@@ -13,7 +15,21 @@ public class SQLAuthDAO extends AuthDAO {
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
-        return null;
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT authToken, username FROM auths WHERE authToken=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, authToken);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return new AuthData(rs.getString("authToken"), rs.getString("username"));
+                    } else {
+                        return null;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
 

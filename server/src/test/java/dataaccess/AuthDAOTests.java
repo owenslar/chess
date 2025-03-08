@@ -63,6 +63,30 @@ public class AuthDAOTests {
     }
 
     @Test
+    public void positiveGetAuthTest() {
+        try {
+            authDAO.createAuth(auth1);
+
+            AuthData actualAuth = authDAO.getAuth(auth1.authToken());
+
+            Assertions.assertEquals(actualAuth.username(), auth1.username());
+            Assertions.assertEquals(actualAuth.authToken(), auth1.authToken());
+        } catch (DataAccessException e) {
+            Assertions.fail("Caught unexpected DAE");
+        }
+    }
+
+    @Test
+    public void negativeGetAuthTest() {
+        try {
+            AuthData actualAuth = authDAO.getAuth("nonExistentAuthToken");
+            Assertions.assertNull(actualAuth, "Expected null for non-existent auth");
+        } catch (DataAccessException e) {
+            Assertions.fail("Caught unexpected DAE");
+        }
+    }
+
+    @Test
     public void clearTest() {
 
         try {
