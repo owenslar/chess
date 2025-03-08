@@ -35,7 +35,8 @@ public class SQLAuthDAO extends AuthDAO {
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
-
+        String statement = "DELETE FROM auths WHERE authToken=?";
+        executeStatement(statement, authToken);
     }
 
     @Override

@@ -87,6 +87,39 @@ public class AuthDAOTests {
     }
 
     @Test
+    public void positiveDeleteAuthTest() {
+        try {
+            authDAO.createAuth(auth1);
+            authDAO.createAuth(auth2);
+
+            authDAO.deleteAuth(auth2.authToken());
+
+            int authCount = getAuthCount();
+
+            Assertions.assertEquals(1, authCount);
+        } catch (DataAccessException e) {
+            Assertions.fail("caught DAE");
+        }
+    }
+
+    @Test
+    public void deleteNotExistentAuthTest() {
+        try {
+            authDAO.createAuth(auth1);
+
+            int countBeforeDelete = getAuthCount();
+
+            authDAO.deleteAuth("nonExistentAuthToken");
+
+            int countAfterDelete = getAuthCount();
+
+            Assertions.assertEquals(countBeforeDelete, countAfterDelete);
+        } catch (DataAccessException e) {
+            Assertions.fail("Caught a DAE");
+        }
+    }
+
+    @Test
     public void clearTest() {
 
         try {
@@ -122,5 +155,20 @@ public class AuthDAOTests {
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
+    }
+
+    private int getAuthCount() throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            String query = "SELECT COUNT(*) FROM auths";
+            try (Statement stmt = conn.createStatement()) {
+                ResultSet rs = stmt.executeQuery(query);
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+        return 0;
     }
 }
