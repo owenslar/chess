@@ -10,6 +10,7 @@ import java.sql.Statement;
 public class UserDAOTests {
 
     UserDAO userDAO;
+    UserData user;
 
     @BeforeEach
     public void setUp() {
@@ -19,11 +20,11 @@ public class UserDAOTests {
             throw new RuntimeException("Failed to initialize database: " + e.getMessage());
         }
         userDAO = DaoFactory.createUserDAO();
+        user = new UserData("testUsername", "testPassword", "testEmail");
     }
 
     @Test
     public void createUserPositiveTest() throws DataAccessException {
-        UserData user = new UserData("Tusername", "Tpassword", "Temail");
         try {
             userDAO.createUser(user);
         } catch (DataAccessException e) {
@@ -32,12 +33,12 @@ public class UserDAOTests {
 
         try (var conn = DatabaseManager.getConnection()) {
             try (Statement stmt = conn.createStatement()) {
-                ResultSet rs = stmt.executeQuery("SELECT * FROM users WHERE username = 'Tusername'");
+                ResultSet rs = stmt.executeQuery("SELECT * FROM users WHERE username = 'testUsername'");
 
                 Assertions.assertTrue(rs.next(), "User should be inserted into the database");
-                Assertions.assertEquals("Tusername", rs.getString("username"));
-                Assertions.assertEquals("Tpassword", rs.getString("password"));
-                Assertions.assertEquals("Temail", rs.getString("email"));
+                Assertions.assertEquals("testUsername", rs.getString("username"));
+                Assertions.assertEquals("testPassword", rs.getString("password"));
+                Assertions.assertEquals("testEmail", rs.getString("email"));
             }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
@@ -45,8 +46,33 @@ public class UserDAOTests {
     }
 
     @Test
+    public void positiveGetUserTest() {
+        try {
+            userDAO.createUser(user);
+
+            UserData actualUser = userDAO.getUser(user.username());
+
+            Assertions.assertEquals(actualUser.username(), user.username());
+            Assertions.assertEquals(actualUser.password(), user.password());
+            Assertions.assertEquals(actualUser.email(), user.email());
+        } catch (DataAccessException e) {
+            Assertions.fail("Caught unexpected DAE");
+        }
+    }
+
+    @Test
+    public void negativeGetUserTest() {
+        try {
+            UserData actualUser = userDAO.getUser("nonExistentUsername");
+            Assertions.assertNull(actualUser, "Expected null for non-existent user");
+        } catch (DataAccessException e) {
+            Assertions.fail("Caught unexpected DAE");
+        }
+    }
+
+    @Test
     public void nullEmailTest() {
-        UserData user = new UserData("testUsername", "testPassword", null);
+        user = new UserData("testUsername", "testPassword", null);
         try {
             userDAO.createUser(user);
             Assertions.fail("Expected SQLException due to NOT NULL constraint");
@@ -88,7 +114,7 @@ public class UserDAOTests {
     public void cleanUp() throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate("DELETE FROM users WHERE username = 'Tusername'");
+                stmt.executeUpdate("TRUNCATE users");
             }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
