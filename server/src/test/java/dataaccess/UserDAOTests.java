@@ -46,6 +46,17 @@ public class UserDAOTests {
     }
 
     @Test
+    public void nullEmailTest() {
+        user = new UserData("testUsername", "testPassword", null);
+        try {
+            userDAO.createUser(user);
+            Assertions.fail("Expected SQLException due to NOT NULL constraint");
+        } catch (DataAccessException e) {
+            Assertions.assertEquals("Column 'email' cannot be null", e.getMessage());
+        }
+    }
+
+    @Test
     public void positiveGetUserTest() {
         try {
             userDAO.createUser(user);
@@ -67,17 +78,6 @@ public class UserDAOTests {
             Assertions.assertNull(actualUser, "Expected null for non-existent user");
         } catch (DataAccessException e) {
             Assertions.fail("Caught unexpected DAE");
-        }
-    }
-
-    @Test
-    public void nullEmailTest() {
-        user = new UserData("testUsername", "testPassword", null);
-        try {
-            userDAO.createUser(user);
-            Assertions.fail("Expected SQLException due to NOT NULL constraint");
-        } catch (DataAccessException e) {
-            Assertions.assertEquals("Column 'email' cannot be null", e.getMessage());
         }
     }
 
