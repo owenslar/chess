@@ -1,7 +1,7 @@
 package dataaccess;
 
 public class DaoFactory {
-    private static final boolean USE_SQL = false;
+    private static final boolean USE_SQL = true;
 
     public static AuthDAO createAuthDAO() {
         return USE_SQL ? new SQLAuthDAO() : new MemoryAuthDAO();
