@@ -69,4 +69,48 @@ public class DatabaseManager {
             throw new DataAccessException(e.getMessage());
         }
     }
+
+
+    private static final String[] createStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS users (
+                `userId` INT PRIMARY KEY AUTO_INCREMENT,
+                `username` VARCHAR(50) NOT NULL UNIQUE,
+                `password` VARCHAR(300) NOT NULL,
+                `email` VARCHAR(50) NOT NULL UNIQUE,
+                INDEX(username)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS games (
+                `gameId` INT PRIMARY KEY AUTO_INCREMENT,
+                `whiteUsername` VARCHAR(50),
+                `blackUsername` VARCHAR(50),
+                `gameName` VARCHAR(50) NOT NULL,
+                `game` TEXT NOT NULL,
+                INDEX(gameId)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS auths (
+                `authId` INT PRIMARY KEY AUTO_INCREMENT,
+                `authToken` VARCHAR(100) NOT NULL UNIQUE,
+                `username` VARCHAR(50) NOT NULL,
+                INDEX(authToken)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+    };
+
+    public static void configureDatabase() throws DataAccessException {
+        DatabaseManager.createDatabase();
+        try (var conn = DatabaseManager.getConnection()) {
+            for (var statement : createStatements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage());
+        }
+    }
 }

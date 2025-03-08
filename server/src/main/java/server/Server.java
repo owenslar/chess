@@ -36,6 +36,13 @@ public class Server {
     }
 
     public int run(int desiredPort) {
+        // Initialize Database
+        try {
+            DatabaseManager.configureDatabase();
+        } catch (DataAccessException e){
+            throw new RuntimeException("Failed to initialize database: " + e.getMessage());
+        }
+
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
