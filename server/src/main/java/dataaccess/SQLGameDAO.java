@@ -63,7 +63,11 @@ public class SQLGameDAO implements GameDAO {
     }
 
     private String convertToJson(ChessGame game) {
-        return new Gson().toJson(game);
+        if (game == null) {
+            return null;
+        } else {
+            return new Gson().toJson(game);
+        }
     }
 
     private ChessGame convertToChessGame(String json) {

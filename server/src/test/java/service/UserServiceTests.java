@@ -14,6 +14,7 @@ public class UserServiceTests {
 
     private UserService userService;
     private final UserDAO userDAO = DaoFactory.createUserDAO();
+    private final AuthDAO authDAO = DaoFactory.createAuthDAO();
 
     @BeforeEach
     public void setUp() {
@@ -129,6 +130,7 @@ public class UserServiceTests {
     public void cleanUpDB() {
         try {
             userDAO.clear();
+            authDAO.clear();
         } catch (DataAccessException e) {
             Assertions.fail("failed to clean db");
         }

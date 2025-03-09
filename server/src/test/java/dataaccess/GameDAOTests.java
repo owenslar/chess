@@ -13,6 +13,7 @@ public class GameDAOTests {
 
     GameDAO gameDAO;
     GameData game;
+    GameData badGame;
 
     @BeforeEach
     public void setUp() {
@@ -23,6 +24,7 @@ public class GameDAOTests {
         }
         gameDAO = DaoFactory.createGameDAO();
         game = new GameData(0, null, null, "testGameName", new ChessGame());
+        badGame = new GameData(0, null, null, "badGame", null);
     }
 
     @Test
@@ -51,6 +53,16 @@ public class GameDAOTests {
     }
 
     @Test
+    public void badCreateGameTest() {
+        try {
+            gameDAO.createGame(badGame);
+            Assertions.fail("Expected SQLException due to NOT NULL constraint");
+        } catch (DataAccessException e) {
+            Assertions.assertEquals("Column 'game' cannot be null", e.getMessage());
+        }
+    }
+
+    @Test
     public void positiveGetGameTest() {
         try {
             int gameId = gameDAO.createGame(game);
@@ -62,6 +74,16 @@ public class GameDAOTests {
             Assertions.assertEquals(actualGame.blackUsername(), game.blackUsername());
             Assertions.assertEquals(actualGame.gameName(), game.gameName());
             Assertions.assertEquals(actualGame.game(), game.game());
+        } catch (DataAccessException e) {
+            Assertions.fail("Caught unexpected DAE");
+        }
+    }
+
+    @Test
+    public void negativeGetGameTest() {
+        try {
+            GameData actualGame = gameDAO.getGame(999);
+            Assertions.assertNull(actualGame, "Expected null for non-existent game");
         } catch (DataAccessException e) {
             Assertions.fail("Caught unexpected DAE");
         }
