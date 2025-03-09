@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.*;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -99,5 +100,16 @@ public class GameServiceTests {
 
         Assertions.assertEquals("Error: bad request", joinResult.message());
         Assertions.assertEquals(400, joinResult.statusCode());
+    }
+
+    @AfterEach
+    public void cleanUpDB() {
+        try {
+            userDAO.clear();
+            gameDAO.clear();
+            authDAO.clear();
+        } catch (DataAccessException e) {
+            Assertions.fail("failed to clean up DB");
+        }
     }
 }

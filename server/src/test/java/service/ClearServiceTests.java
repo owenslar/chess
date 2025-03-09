@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.*;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,5 +41,16 @@ public class ClearServiceTests {
         Assertions.assertNull(userDAO.getUser("username"));
         Assertions.assertNull(authDAO.getAuth(registerResult.authToken()));
         Assertions.assertNull(gameDAO.getGame(1));
+    }
+
+    @AfterEach
+    public void cleanUpDB() {
+        try {
+            userDAO.clear();
+            authDAO.clear();
+            gameDAO.clear();
+        } catch (DataAccessException e) {
+            Assertions.fail("failed to clean up DB");
+        }
     }
 }
