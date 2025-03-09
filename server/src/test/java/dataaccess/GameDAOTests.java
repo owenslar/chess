@@ -151,6 +151,31 @@ public class GameDAOTests {
         }
     }
 
+    @Test
+    public void clearTest() {
+        try {
+            gameDAO.createGame(game);
+            gameDAO.createGame(game2);
+
+            gameDAO.clear();
+        } catch (DataAccessException e) {
+            Assertions.fail("Caught an unexpected DataAccessException");
+        }
+
+        try (var conn = DatabaseManager.getConnection()) {
+            try (Statement stmt = conn.createStatement()) {
+                ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM games");
+                if (rs.next()) {
+                    int count = rs.getInt(1);
+                    Assertions.assertEquals(0, count);
+                }
+            }
+        } catch (SQLException e) {
+            Assertions.fail("Caught unexpected SQL exception");
+        } catch (DataAccessException e) {
+            Assertions.fail("Caught unexpected DAE exception");
+        }
+    }
 
     @AfterEach
     public void cleanUp() {
