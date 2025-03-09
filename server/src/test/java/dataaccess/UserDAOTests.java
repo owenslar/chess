@@ -103,10 +103,8 @@ public class UserDAOTests {
                     Assertions.assertEquals(0, count);
                 }
             }
-        } catch (SQLException e) {
-            Assertions.fail("Caught unexpected SQL exception");
-        } catch (DataAccessException e) {
-            Assertions.fail("Caught unexpected DAE exception");
+        } catch (SQLException | DataAccessException e) {
+            Assertions.fail("Caught unexpected exception");
         }
     }
 
