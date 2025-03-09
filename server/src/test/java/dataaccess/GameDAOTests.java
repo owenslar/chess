@@ -118,6 +118,40 @@ public class GameDAOTests {
         }
     }
 
+    @Test
+    public void positiveUpdateGameTest() {
+        try {
+            int gameId = gameDAO.createGame(game);
+            GameData updatedGame = new GameData(gameId, "testWhiteUsername", game.blackUsername(), game.gameName(), game.game());
+
+            gameDAO.updateGame(updatedGame);
+
+            GameData retrievedUpdatedGame = gameDAO.getGame(gameId);
+
+            Assertions.assertEquals(game.gameName(), retrievedUpdatedGame.gameName());
+            Assertions.assertEquals(gameId, retrievedUpdatedGame.gameID());
+            Assertions.assertEquals("testWhiteUsername", retrievedUpdatedGame.whiteUsername());
+            Assertions.assertEquals(game.blackUsername(), retrievedUpdatedGame.blackUsername());
+            Assertions.assertEquals(game.game(), retrievedUpdatedGame.game());
+        } catch (DataAccessException e) {
+            Assertions.fail("Caught an unexpected DAE");
+        }
+    }
+
+    @Test
+    public void updateNonExistentGameTest() {
+        try {
+            gameDAO.createGame(game);
+
+            GameData nonExistentGame = new GameData(999, null, null, "notRealGame", new ChessGame());
+            gameDAO.updateGame(nonExistentGame);
+            Assertions.fail("Expected DAE for a non existent game");
+        } catch (DataAccessException e) {
+            Assertions.assertEquals("Game does not exist", e.getMessage());
+        }
+    }
+
+
     @AfterEach
     public void cleanUp() {
         try (var conn = DatabaseManager.getConnection()) {

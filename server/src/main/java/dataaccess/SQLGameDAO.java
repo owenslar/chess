@@ -72,12 +72,30 @@ public class SQLGameDAO implements GameDAO {
 
     @Override
     public void updateGame(GameData gameData) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            String statement = "UPDATE games SET whiteUsername = ?, blackUsername = ?, " +
+                    "gameName = ?, game = ? WHERE gameId = ?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, gameData.whiteUsername());
+                ps.setString(2, gameData.blackUsername());
+                ps.setString(3, gameData.gameName());
+                ps.setString(4, convertToJson(gameData.game()));
+                ps.setInt(5, gameData.gameID());
 
+                int rowsUpdated = ps.executeUpdate();
+                if (rowsUpdated == 0) {
+                    throw new DataAccessException("Game does not exist");
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     @Override
     public void clear() throws DataAccessException {
-
+        String statement = "TRUNCATE games";
+        executeStatement(statement);
     }
 
     private String convertToJson(ChessGame game) {
