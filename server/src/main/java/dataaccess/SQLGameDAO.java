@@ -48,8 +48,26 @@ public class SQLGameDAO implements GameDAO {
     }
 
     @Override
-    public ArrayList<GameData> listGames() throws DataAccessException{
-        return null;
+    public ArrayList<GameData> listGames() throws DataAccessException {
+        ArrayList<GameData> result = new ArrayList<>();
+        try (var conn = DatabaseManager.getConnection()) {
+            String statement = "SELECT * FROM games";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        ChessGame game = convertToChessGame(rs.getString("game"));
+                        result.add(new GameData(rs.getInt("gameId"),
+                                rs.getString("whiteUsername"),
+                                rs.getString("blackUsername"),
+                                rs.getString("gameName"),
+                                game));
+                    }
+                    return result;
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     @Override

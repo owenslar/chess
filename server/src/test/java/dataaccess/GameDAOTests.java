@@ -8,11 +8,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 public class GameDAOTests {
 
     GameDAO gameDAO;
     GameData game;
+    GameData game2;
     GameData badGame;
 
     @BeforeEach
@@ -24,6 +26,7 @@ public class GameDAOTests {
         }
         gameDAO = DaoFactory.createGameDAO();
         game = new GameData(0, null, null, "testGameName", new ChessGame());
+        game2 = new GameData(0, null, null, "testGame2", new ChessGame());
         badGame = new GameData(0, null, null, "badGame", null);
     }
 
@@ -86,6 +89,32 @@ public class GameDAOTests {
             Assertions.assertNull(actualGame, "Expected null for non-existent game");
         } catch (DataAccessException e) {
             Assertions.fail("Caught unexpected DAE");
+        }
+    }
+
+    @Test
+    public void positiveListGamesTest() {
+        try {
+            gameDAO.createGame(game);
+            gameDAO.createGame(game2);
+
+            ArrayList<GameData> games = gameDAO.listGames();
+
+            Assertions.assertFalse(games.isEmpty());
+            Assertions.assertEquals(2, games.size());
+        } catch (DataAccessException e) {
+            Assertions.fail("Caught an unexpected DAE");
+        }
+    }
+
+    @Test
+    public void emptyGamesListTest() {
+        try {
+            ArrayList<GameData> games = gameDAO.listGames();
+
+            Assertions.assertTrue(games.isEmpty());
+        } catch (DataAccessException e) {
+            Assertions.fail("Caught an unexpected DAE");
         }
     }
 
