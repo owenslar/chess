@@ -17,13 +17,17 @@ public class GameDAOTests {
     GameData game2;
     GameData badGame;
 
-    @BeforeEach
-    public void setUp() {
+    @BeforeAll
+    public static void configureDB() {
         try {
             DatabaseManager.configureDatabase();
         } catch (DataAccessException e) {
             throw new RuntimeException("Failed to initiate DB: " + e.getMessage());
         }
+    }
+
+    @BeforeEach
+    public void setUp() {
         gameDAO = DaoFactory.createGameDAO();
         game = new GameData(0, null, null, "testGameName", new ChessGame());
         game2 = new GameData(0, null, null, "testGame2", new ChessGame());
@@ -180,11 +184,14 @@ public class GameDAOTests {
     @AfterEach
     public void cleanUp() {
         try (var conn = DatabaseManager.getConnection()) {
-            try (Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate("TRUNCATE games");
+            try (PreparedStatement ps = conn.prepareStatement("""
+                DELETE FROM games
+                WHERE gameName IN ('testGameName', 'testGame2', 'badGame', 'notRealGame')
+            """)) {
+                ps.executeUpdate();
             }
         } catch (SQLException | DataAccessException e) {
-            Assertions.fail("Caught an exception when cleaning up");
+            Assertions.fail("Caught an exception when cleaning up: " + e.getMessage());
         }
     }
 }
