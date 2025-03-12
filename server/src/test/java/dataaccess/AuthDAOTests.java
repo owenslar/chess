@@ -1,11 +1,9 @@
 package dataaccess;
 
 import model.AuthData;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -17,13 +15,17 @@ public class AuthDAOTests {
     AuthData auth2;
     AuthData badAuth;
 
-    @BeforeEach
-    public void setUp() {
+    @BeforeAll
+    public static void configureDB() {
         try {
             DatabaseManager.configureDatabase();
         } catch (DataAccessException e) {
             throw new RuntimeException("Failed to initialize database: " + e.getMessage());
         }
+    }
+
+    @BeforeEach
+    public void setUp() {
         authDAO = DaoFactory.createAuthDAO();
         auth1 = new AuthData("testAuthToken1", "testUsername1");
         auth2 = new AuthData("testAuthToken2", "testUsername2");
@@ -147,13 +149,16 @@ public class AuthDAOTests {
     }
 
     @AfterEach
-    public void cleanUp() throws DataAccessException {
+    public void cleanUp() {
         try (var conn = DatabaseManager.getConnection()) {
-            try (Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate("TRUNCATE auths");
+            try (PreparedStatement ps = conn.prepareStatement("""
+                DELETE FROM auths
+                WHERE authToken IN ('testAuthToken1', 'testAuthToken2')
+            """)) {
+                ps.executeUpdate();
             }
-        } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+        } catch (SQLException | DataAccessException e) {
+            Assertions.fail("Caught an exception when cleaning up: " + e.getMessage());
         }
     }
 
