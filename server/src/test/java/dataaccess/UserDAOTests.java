@@ -12,13 +12,17 @@ public class UserDAOTests {
     UserDAO userDAO;
     UserData user;
 
-    @BeforeEach
-    public void setUp() {
+    @BeforeAll
+    public static void configureDB() {
         try {
             DatabaseManager.configureDatabase();
         } catch (DataAccessException e) {
             throw new RuntimeException("Failed to initialize database: " + e.getMessage());
         }
+    }
+
+    @BeforeEach
+    public void setUp() {
         userDAO = DaoFactory.createUserDAO();
         user = new UserData("testUsername", "testPassword", "testEmail");
     }
@@ -112,7 +116,10 @@ public class UserDAOTests {
     public void cleanUp() throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (Statement stmt = conn.createStatement()) {
-                stmt.executeUpdate("TRUNCATE users");
+                stmt.executeUpdate("""
+                DELETE FROM users
+                WHERE username IN ('testUsername', 'test1user', 'test2user', 'nonExistentUsername')
+            """);
             }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
