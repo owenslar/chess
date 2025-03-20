@@ -18,12 +18,17 @@ public class ServerFacade {
 
     public ServerFacade(String url) { serverUrl = url; }
 
-    public RegisterResult register(RegisterRequest request) {
+    public ClearResult clear() throws ResponseException {
+        String path = "/db";
+        return makeRequest("DELETE", path, null, ClearResult.class);
+    }
+
+    public RegisterResult register(RegisterRequest request) throws ResponseException {
         String path = "/user";
         return makeRequest("POST", path, request, RegisterResult.class);
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) {
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();

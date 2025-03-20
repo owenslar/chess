@@ -1,6 +1,8 @@
 package client;
 
+import exception.ResponseException;
 import org.junit.jupiter.api.*;
+import requestresult.ClearResult;
 import requestresult.RegisterRequest;
 import requestresult.RegisterResult;
 import server.Server;
@@ -18,6 +20,12 @@ public class ServerFacadeTests {
         var port = server.run(8080);
         System.out.println("Started test HTTP server on " + port);
         serverFacade = new ServerFacade("http://localhost:8080");
+        serverFacade.clear();
+    }
+
+    @AfterEach
+    public void clearDb() {
+        serverFacade.clear();
     }
 
     @AfterAll
@@ -27,8 +35,9 @@ public class ServerFacadeTests {
 
 
     @Test
-    public void sampleTest() {
-        Assertions.assertTrue(true);
+    public void clearTest() {
+        ClearResult clearResult = serverFacade.clear();
+        Assertions.assertNull(clearResult.message());
     }
 
     @Test
@@ -41,5 +50,19 @@ public class ServerFacadeTests {
         Assertions.assertNotNull(registerResult.authToken());
         Assertions.assertNull(registerResult.message());
     }
+
+    @Test
+    public void negativeRegisterTest() {
+        RegisterRequest registerRequest = new RegisterRequest(null, "testPass", "testEmail");
+        try {
+            serverFacade.register(registerRequest);
+            Assertions.fail("Expected to catch an error");
+        } catch (ResponseException e) {
+            Assertions.assertEquals("Error: bad request", e.getMessage());
+            Assertions.assertEquals(400, e.getStatusCode());
+        }
+    }
+
+
 
 }
