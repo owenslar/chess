@@ -1,3 +1,4 @@
+package server;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
