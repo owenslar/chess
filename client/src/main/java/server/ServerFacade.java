@@ -28,6 +28,11 @@ public class ServerFacade {
         return makeRequest("POST", path, request, RegisterResult.class);
     }
 
+    public LoginResult login(LoginRequest request) throws ResponseException {
+        String path = "/session";
+        return makeRequest("POST", path, request, LoginResult.class);
+    }
+
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
