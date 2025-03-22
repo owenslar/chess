@@ -1,5 +1,5 @@
 
-import ui.Repl;
+import ui.PreloginRepl;
 
 public class Main {
     public static void main(String[] args) {
@@ -8,6 +8,6 @@ public class Main {
             serverUrl = args[0];
         }
 
-        new Repl(serverUrl).run();
+        new PreloginRepl(serverUrl).run();
     }
 }
