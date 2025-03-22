@@ -122,4 +122,44 @@ public class ServerFacadeTests {
         }
     }
 
+    @Test
+    public void positiveCreateGameTest() {
+        try {
+            RegisterResult registerResult = serverFacade.register(registerRequest);
+            CreateRequest createRequest = new CreateRequest("testGameName", registerResult.authToken());
+            CreateResult createResult = serverFacade.create(createRequest);
+
+            Assertions.assertNotNull(createResult.gameID());
+            Assertions.assertTrue(createResult.gameID() > 0);
+        } catch (ResponseException e) {
+            Assertions.fail("caught an unexpected exception");
+        }
+    }
+
+    @Test
+    public void negativeCreateGameTest() {
+        try {
+            RegisterResult registerResult = serverFacade.register(registerRequest);
+            CreateRequest createRequest = new CreateRequest(null, registerResult.authToken());
+            serverFacade.create(createRequest);
+            Assertions.fail("Didn't catch an expected exception");
+        } catch (ResponseException e) {
+            Assertions.assertEquals(400, e.getStatusCode());
+            Assertions.assertEquals("Error: bad request", e.getMessage());
+        }
+    }
+
+    @Test
+    public void positiveListTest() {
+        try {
+            RegisterResult registerResult = serverFacade.register(registerRequest);
+            ListRequest listRequest = new ListRequest(registerResult.authToken());
+            ListResult listResult = serverFacade.list(listRequest);
+
+            Assertions.assertTrue(true);
+        } catch (ResponseException e) {
+            Assertions.fail("caught unexpected exception");
+        }
+    }
+
 }

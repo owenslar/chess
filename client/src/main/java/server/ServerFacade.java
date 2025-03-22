@@ -33,14 +33,21 @@ public class ServerFacade {
         return makeRequest("POST", path, request, LoginResult.class, null);
     }
 
-    public LogoutResult logout(LogoutRequest logoutRequest) throws ResponseException {
+    public LogoutResult logout(LogoutRequest request) throws ResponseException {
         String path = "/session";
-        return makeRequest("DELETE", path, null, LogoutResult.class, logoutRequest.authToken());
+        return makeRequest("DELETE", path, null, LogoutResult.class, request.authToken());
     }
 
-    public ListResult list(ListRequest listRequest) throws ResponseException {
+    public ListResult list(ListRequest request) throws ResponseException {
         String path = "/game";
-        return makeRequest("GET", path, null, ListResult.class, listRequest.authToken());
+        return makeRequest("GET", path, null, ListResult.class, request.authToken());
+    }
+
+    public CreateResult create(CreateRequest request) throws ResponseException {
+        String path = "/game";
+        String authToken = request.authToken();
+        CreateRequest newCreateRequest = new CreateRequest(request.gameName(), null);
+        return makeRequest("POST", path, newCreateRequest, CreateResult.class, authToken);
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ResponseException {
