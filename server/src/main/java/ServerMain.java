@@ -7,7 +7,7 @@ import service.ClearService;
 import service.GameService;
 import service.UserService;
 
-public class Main {
+public class ServerMain {
     public static void main(String[] args) {
 
         UserDAO userDAO = DaoFactory.createUserDAO();
