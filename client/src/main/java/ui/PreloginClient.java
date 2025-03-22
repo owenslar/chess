@@ -12,12 +12,14 @@ import static ui.EscapeSequences.*;
 public class PreloginClient {
     private final ServerFacade server;
     private final String serverUrl;
-    private State state = State.SIGNEDOUT;
+    private PostloginRepl postloginRepl;
+    private String authToken;
 
 
     public PreloginClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
+        authToken = null;
     }
 
     public String eval(String input) {
@@ -41,7 +43,10 @@ public class PreloginClient {
         if (params.length == 3) {
             RegisterRequest registerRequest = new RegisterRequest(params[0], params[1], params[2]);
             RegisterResult registerResult = server.register(registerRequest);
-
+            authToken = registerResult.authToken();
+            postloginRepl = new PostloginRepl(serverUrl, authToken);
+            postloginRepl.run(SET_TEXT_COLOR_BLUE + "Registration successful");
+            return "\n";
         }
         throw new ResponseException(400, "Expected: <username> <password> <email>");
     }
@@ -50,6 +55,7 @@ public class PreloginClient {
         if (params.length != 2) {
             return "please input a username and a password with a login command";
         }
+        return "";
     }
 
     public String help() {

@@ -2,16 +2,13 @@ package ui;
 
 import static ui.EscapeSequences.*;
 
-import java.util.Objects;
 import java.util.Scanner;
 
 public class PreloginRepl {
     private final PreloginClient client;
-    private final PostloginRepl postloginRepl;
 
     public PreloginRepl(String serverUrl) {
         client = new PreloginClient(serverUrl);
-        postloginRepl = new PostloginRepl(serverUrl);
     }
 
     public void run() {
@@ -26,12 +23,7 @@ public class PreloginRepl {
 
             try {
                 result = client.eval(line);
-                if (Objects.equals(result, "Successfully registered.")) {
-                    System.out.print(result);
-
-                } else {
-                    System.out.print(result);
-                }
+                System.out.print(result);
             } catch (Throwable e) {
                 String msg = e.toString();
                 System.out.print(msg);
