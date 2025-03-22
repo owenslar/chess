@@ -153,12 +153,33 @@ public class ServerFacadeTests {
     public void positiveListTest() {
         try {
             RegisterResult registerResult = serverFacade.register(registerRequest);
+            CreateRequest createRequest1 = new CreateRequest("testGame1", registerResult.authToken());
+            CreateRequest createRequest2 = new CreateRequest("testGame2", registerResult.authToken());
+            serverFacade.create(createRequest1);
+            serverFacade.create(createRequest2);
             ListRequest listRequest = new ListRequest(registerResult.authToken());
             ListResult listResult = serverFacade.list(listRequest);
 
-            Assertions.assertTrue(true);
+            Assertions.assertNotNull(listResult.games());
+            Assertions.assertEquals(2, listResult.games().size());
+            Assertions.assertEquals("testGame1", listResult.games().getFirst().gameName());
+            Assertions.assertNull(listResult.message());
         } catch (ResponseException e) {
             Assertions.fail("caught unexpected exception");
+        }
+    }
+
+    @Test
+    public void negativeListTest() {
+        try {
+            RegisterResult registerResult = serverFacade.register(registerRequest);
+            serverFacade.create(new CreateRequest("testGame", registerResult.authToken()));
+            serverFacade.list(new ListRequest("badAuthToken"));
+
+            Assertions.fail("expected an exception to be thrown");
+        } catch (ResponseException e) {
+            Assertions.assertEquals(401, e.getStatusCode());
+            Assertions.assertEquals("Error: unauthorized", e.getMessage());
         }
     }
 
