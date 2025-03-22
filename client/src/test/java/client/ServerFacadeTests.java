@@ -183,4 +183,34 @@ public class ServerFacadeTests {
         }
     }
 
+    @Test
+    public void positiveJoinTest() {
+        try {
+            RegisterResult registerResult = serverFacade.register(registerRequest);
+            String authToken = registerResult.authToken();
+            CreateResult createResult = serverFacade.create(new CreateRequest("testGame", authToken));
+            JoinResult joinResult = serverFacade.join(new JoinRequest(authToken, "WHITE", createResult.gameID()));
+
+            Assertions.assertNull(joinResult.message());
+        } catch (ResponseException e) {
+            Assertions.fail("caught an unexpected exception");
+        }
+    }
+
+    @Test
+    public void negativeJoinTest() {
+        try {
+            RegisterResult registerResult = serverFacade.register(registerRequest);
+            String authToken = registerResult.authToken();
+            CreateResult createResult = serverFacade.create(new CreateRequest("testGame", authToken));
+            serverFacade.join(new JoinRequest(authToken, "WHITE", createResult.gameID()));
+            serverFacade.join(new JoinRequest(authToken, "WHITE", createResult.gameID()));
+
+            Assertions.fail("Expected to catch an exception and didn't");
+        } catch (ResponseException e) {
+            Assertions.assertEquals(403, e.getStatusCode());
+            Assertions.assertEquals("Error: already taken", e.getMessage());
+        }
+    }
+
 }

@@ -50,6 +50,13 @@ public class ServerFacade {
         return makeRequest("POST", path, newCreateRequest, CreateResult.class, authToken);
     }
 
+    public JoinResult join(JoinRequest request) throws ResponseException {
+        String path = "/game";
+        String authToken = request.authToken();
+        JoinRequest newJoinRequest = new JoinRequest(null, request.playerColor(), request.gameID());
+        return makeRequest("PUT", path, newJoinRequest, JoinResult.class, authToken);
+    }
+
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
