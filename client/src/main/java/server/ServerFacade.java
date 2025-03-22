@@ -20,27 +20,37 @@ public class ServerFacade {
 
     public ClearResult clear() throws ResponseException {
         String path = "/db";
-        return makeRequest("DELETE", path, null, ClearResult.class);
+        return makeRequest("DELETE", path, null, ClearResult.class, null);
     }
 
     public RegisterResult register(RegisterRequest request) throws ResponseException {
         String path = "/user";
-        return makeRequest("POST", path, request, RegisterResult.class);
+        return makeRequest("POST", path, request, RegisterResult.class, null);
     }
 
     public LoginResult login(LoginRequest request) throws ResponseException {
         String path = "/session";
-        return makeRequest("POST", path, request, LoginResult.class);
+        return makeRequest("POST", path, request, LoginResult.class, null);
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+    public LogoutResult logout(LogoutRequest logoutRequest) throws ResponseException {
+        String path = "/session";
+        return makeRequest("DELETE", path, null, LogoutResult.class, logoutRequest.authToken());
+    }
+
+    public ListResult list(ListRequest listRequest) throws ResponseException {
+        String path = "/game";
+        return makeRequest("GET", path, null, ListResult.class, listRequest.authToken());
+    }
+
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
 
-            writeBody(request, http);
+            writeBody(request, http, authToken);
             http.connect();
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
@@ -51,9 +61,12 @@ public class ServerFacade {
         }
     }
 
-    private static void writeBody(Object request, HttpURLConnection http) throws IOException {
+    private static void writeBody(Object request, HttpURLConnection http, String authToken) throws IOException {
+        if (authToken != null) {
+            http.setRequestProperty("authorization", authToken);
+        }
         if (request != null) {
-            http.addRequestProperty("Content-Type", "application/json");
+            http.setRequestProperty("Content-Type", "application/json");
             String reqData = new Gson().toJson(request);
             try (OutputStream reqBody = http.getOutputStream()) {
                 reqBody.write(reqData.getBytes());

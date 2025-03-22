@@ -96,5 +96,30 @@ public class ServerFacadeTests {
         }
     }
 
+    @Test
+    public void positiveLogoutTest() {
+        try {
+            RegisterResult registerResult = serverFacade.register(registerRequest);
+            LogoutRequest logoutRequest = new LogoutRequest(registerResult.authToken());
+            LogoutResult logoutResult = serverFacade.logout(logoutRequest);
+
+            Assertions.assertNull(logoutResult.message());
+        } catch (ResponseException e) {
+            Assertions.fail("Caught an unexpected exception");
+        }
+    }
+
+    @Test
+    public void negativeLogoutTest() {
+        try {
+            serverFacade.register(registerRequest);
+            LogoutRequest badLogoutRequest = new LogoutRequest("badAuthToken");
+            serverFacade.logout(badLogoutRequest);
+            Assertions.fail("Expected an exception that didn't occur");
+        } catch (ResponseException e) {
+            Assertions.assertEquals(401, e.getStatusCode());
+            Assertions.assertEquals("Error: unauthorized", e.getMessage());
+        }
+    }
 
 }
