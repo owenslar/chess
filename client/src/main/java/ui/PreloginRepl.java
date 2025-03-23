@@ -17,7 +17,7 @@ public class PreloginRepl {
 
         Scanner scanner = new Scanner(System.in);
         String result = "";
-        while (!result.equals("quit")) {
+        while (!result.equals(SET_TEXT_COLOR_BLUE + "quit")) {
             printPrompt();
             String line = scanner.nextLine();
 

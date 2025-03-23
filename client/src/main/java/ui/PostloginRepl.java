@@ -1,5 +1,7 @@
 package ui;
 
+import server.ServerFacade;
+
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -7,21 +9,18 @@ import static ui.EscapeSequences.*;
 public class PostloginRepl {
 
     private final PostloginClient postloginClient;
-    private final String serverUrl;
-    private final String authToken;
 
-    public PostloginRepl(String serverUrl, String authToken) {
-        postloginClient = new PostloginClient(serverUrl, authToken);
-        this.serverUrl = serverUrl;
-        this.authToken = authToken;
+    public PostloginRepl(String serverUrl, String authToken, ServerFacade server) {
+        postloginClient = new PostloginClient(serverUrl, authToken, server);
     }
 
     public void run(String initialMessage) {
         System.out.println(initialMessage);
+        System.out.println(SET_TEXT_COLOR_MAGENTA + "Type 'help' to see your possible actions.");
 
         Scanner scanner = new Scanner(System.in);
         String result = "";
-        while (!result.equals("logout")) {
+        while (!result.equals(SET_TEXT_COLOR_BLUE + "logout")) {
             printPrompt();
             String line = scanner.nextLine();
 
