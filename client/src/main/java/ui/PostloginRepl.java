@@ -20,7 +20,7 @@ public class PostloginRepl {
 
         Scanner scanner = new Scanner(System.in);
         String result = "";
-        while (!result.equals(SET_TEXT_COLOR_BLUE + "logout")) {
+        while (!result.equals(SET_TEXT_COLOR_BLUE + "logout successful")) {
             printPrompt();
             String line = scanner.nextLine();
 
