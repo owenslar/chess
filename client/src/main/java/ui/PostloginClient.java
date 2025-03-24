@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import dtos.GameSummary;
 import exception.ResponseException;
 import requestresult.*;
@@ -44,11 +45,29 @@ public class PostloginClient {
     }
 
     public String observe(String... params) throws ResponseException {
-        return "IMPLEMENT OBSERVE";
+        if (params.length == 1) {
+            // This is all temporary code for observing, you probably need to change how this works later
+            GameplayRepl gameplayRepl = new GameplayRepl(serverUrl, authToken, server);
+            gameplayRepl.run(new ChessGame(), "WHITE");
+            return "";
+        }
+        throw new ResponseException(400, "Expected: <gameNumber>");
     }
 
     public String join(String... params) throws ResponseException {
-        return "IMPLEMENT JOIN";
+        if (params.length == 2) {
+            String color = params[1].toUpperCase();
+            try {
+                JoinRequest joinRequest = new JoinRequest(authToken, color, Integer.parseInt(params[0]));
+                server.join(joinRequest);
+                GameplayRepl gameplayRepl = new GameplayRepl(serverUrl, authToken, server);
+                gameplayRepl.run(new ChessGame(), color);
+                return "";
+            } catch (NumberFormatException e) {
+                throw new ResponseException(400, "Expected: <gameNumber> [WHITE|BLACK]");
+            }
+        }
+        throw new ResponseException(400, "Expected: <id> [WHITE|BLACK]");
     }
 
     public String list(String... params) throws ResponseException {
