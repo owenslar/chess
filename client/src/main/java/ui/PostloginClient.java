@@ -17,7 +17,7 @@ public class PostloginClient {
     private final String serverUrl;
     private final String authToken;
     private final ServerFacade server;
-    private Map<Integer, String> games = new HashMap<>();
+    private final Map<Integer, Integer> games = new HashMap<>();
 
     public PostloginClient(String serverUrl, String authToken, ServerFacade server) {
         this.serverUrl = serverUrl;
@@ -58,7 +58,7 @@ public class PostloginClient {
         if (params.length == 2) {
             String color = params[1].toUpperCase();
             try {
-                JoinRequest joinRequest = new JoinRequest(authToken, color, Integer.parseInt(params[0]));
+                JoinRequest joinRequest = new JoinRequest(authToken, color, games.get(Integer.parseInt(params[0])));
                 server.join(joinRequest);
                 GameplayRepl gameplayRepl = new GameplayRepl(serverUrl, authToken, server);
                 gameplayRepl.run(new ChessGame(), color);
@@ -74,10 +74,11 @@ public class PostloginClient {
         if (params.length == 0) {
             ListRequest listRequest = new ListRequest(authToken);
             ListResult listResult = server.list(listRequest);
+            games.clear();
             for (GameSummary game : listResult.games()) {
-                games.put(game.gameID(), game.gameName());
+                games.put(games.size() + 1, game.gameID());
             }
-            return listGamesString(listResult.games());
+            return listGamesString(listResult.games(), games);
         }
         throw new ResponseException(400, "Expected no arguments after 'list'");
     }
@@ -86,7 +87,7 @@ public class PostloginClient {
         if (params.length == 1) {
             CreateRequest createRequest = new CreateRequest(params[0], authToken);
             CreateResult createResult = server.create(createRequest);
-            games.put(createResult.gameID(), params[0]);
+            games.put(games.size() + 1, createResult.gameID());
             return "Game created successfully";
         }
         throw new ResponseException(400, "Expected: <gameName>");
@@ -105,29 +106,48 @@ public class PostloginClient {
                 "- when you are done\n" + SET_TEXT_COLOR_BLUE + "help " + SET_TEXT_COLOR_MAGENTA + "- with possible commands\n";
     }
 
-    private String listGamesString(List<GameSummary> games) {
+    private String listGamesString(List<GameSummary> games, Map<Integer, Integer> gamesMap) {
         StringBuilder result = new StringBuilder();
         if (games.isEmpty()) {
             return "No games currently.";
         }
-        for (GameSummary game : games) {
-            result.append(game.gameID()).append(". ").append("Game name: ")
-                    .append(game.gameName())
-                    .append("   White");
-            if (game.whiteUsername() != null) {
-                result.append(": ").append(game.whiteUsername());
+        for (int i = 1; i <= gamesMap.size(); i++) {
+            Integer gameId = gamesMap.get(i);
+            if (gameId == null) {
+                continue;
             }
-            else {
-                result.append(" empty");
+
+            GameSummary currentGame = null;
+            for (GameSummary game : games) {
+                if (game.gameID() == gameId) {
+                    currentGame = game;
+                    break;
+                }
             }
-            result.append("   Black");
-            if (game.blackUsername() != null) {
-                result.append(": ").append(game.blackUsername());
-            } else {
-                result.append(" empty");
-            }
-            result.append("\n");
+            appendGameToGamesList(result, currentGame);
         }
         return result.toString();
+    }
+
+    private void appendGameToGamesList(StringBuilder result, GameSummary game) {
+        if (game == null) {
+            return;
+        }
+        result.append(game.gameID()).append(". ").append("Game name: ")
+                .append(game.gameName())
+                .append("   White");
+        if (game.whiteUsername() != null) {
+            result.append(": ").append(game.whiteUsername());
+        }
+        else {
+            result.append(" empty");
+        }
+        result.append("   Black");
+        if (game.blackUsername() != null) {
+            result.append(": ").append(game.blackUsername());
+        } else {
+            result.append(" empty");
+        }
+        result.append("\n");
     }
 }

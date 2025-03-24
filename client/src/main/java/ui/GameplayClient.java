@@ -96,30 +96,22 @@ public class GameplayClient {
     private void appendLightSquare(StringBuilder result, ChessPiece piece) {
         if (piece == null) {
             result.append(SET_BG_COLOR_SOFT_WHITE + SET_TEXT_COLOR_SOFT_WHITE)
-//                    .append(" ")
                     .append(EMPTY);
-//                    .append(" ");
         } else {
             result.append(SET_BG_COLOR_SOFT_WHITE + SET_TEXT_COLOR_SOFT_WHITE)
-//                    .append(" ")
                     .append(determineChessPiece(piece))
                     .append(SET_TEXT_COLOR_SOFT_WHITE);
-//                    .append(" ");
         }
     }
 
     private void appendDarkSquare(StringBuilder result, ChessPiece piece) {
         if (piece == null) {
             result.append(SET_BG_COLOR_LIGHT_GREEN + SET_TEXT_COLOR_LIGHT_GREEN)
-//                    .append(" ")
                     .append(EMPTY);
-//                    .append(" ");
         } else {
             result.append(SET_BG_COLOR_LIGHT_GREEN + SET_TEXT_COLOR_LIGHT_GREEN)
-//                    .append(" ")
                     .append(determineChessPiece(piece))
                     .append(SET_TEXT_COLOR_LIGHT_GREEN);
-//                    .append(" ");
         }
     }
 
