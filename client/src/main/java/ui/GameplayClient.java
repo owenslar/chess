@@ -133,12 +133,12 @@ public class GameplayClient {
             };
         } else {
             return switch (piece.getPieceType()) {
-                case QUEEN -> SET_TEXT_COLOR_BLACK + BLACK_QUEEN;
-                case KING -> SET_TEXT_COLOR_BLACK + BLACK_KING;
-                case BISHOP -> SET_TEXT_COLOR_BLACK + BLACK_BISHOP;
-                case KNIGHT -> SET_TEXT_COLOR_BLACK + BLACK_KNIGHT;
-                case ROOK -> SET_TEXT_COLOR_BLACK + BLACK_ROOK;
-                case PAWN -> SET_TEXT_COLOR_BLACK + BLACK_PAWN;
+                case QUEEN -> SET_TEXT_COLOR_BLACK + WHITE_QUEEN;
+                case KING -> SET_TEXT_COLOR_BLACK + WHITE_KING;
+                case BISHOP -> SET_TEXT_COLOR_BLACK + WHITE_BISHOP;
+                case KNIGHT -> SET_TEXT_COLOR_BLACK + WHITE_KNIGHT;
+                case ROOK -> SET_TEXT_COLOR_BLACK + WHITE_ROOK;
+                case PAWN -> SET_TEXT_COLOR_BLACK + WHITE_PAWN;
             };
         }
     }

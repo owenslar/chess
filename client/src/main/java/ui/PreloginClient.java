@@ -34,7 +34,7 @@ public class PreloginClient {
                 case "register" -> SET_TEXT_COLOR_BLUE + register(params);
                 case "quit" -> SET_TEXT_COLOR_BLUE + "quitting chess";
                 case "help" -> SET_TEXT_COLOR_BLUE + help();
-                default -> SET_TEXT_COLOR_RED + "\nCommand not found, here are the valid commands:\n" + help();
+                default -> SET_TEXT_COLOR_RED + "\nCommand not found, here are the valid commands:\n" + SET_TEXT_COLOR_BLUE + help();
             };
         } catch (ResponseException ex) {
             return SET_TEXT_COLOR_RED + ex.getMessage();
