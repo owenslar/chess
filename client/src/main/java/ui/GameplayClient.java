@@ -36,12 +36,11 @@ public class GameplayClient {
 
     public String stringifyGame(ChessGame game, String orientation) {
         StringBuilder result = new StringBuilder();
-        String[] letters = {"a", "b", "c", "d", "e", "f", "g", "h"};
+        String[] letters = {"a","b","c","d","e","f","g","h"};
         if (Objects.equals(orientation, "BLACK")) {
             letters = new String[]{"h","g","f","e","d","c","b","a"};
         }
         appendLettersRow(result, letters);
-//        appendTestRow(result);
         appendChessBoard(result, game, orientation);
         appendLettersRow(result, letters);
         return result.toString();
@@ -96,68 +95,66 @@ public class GameplayClient {
 
     private void appendLightSquare(StringBuilder result, ChessPiece piece) {
         if (piece == null) {
-            result.append(SET_BG_COLOR_WHITE + SET_TEXT_COLOR_WHITE)
+            result.append(SET_BG_COLOR_SOFT_WHITE + SET_TEXT_COLOR_SOFT_WHITE)
 //                    .append(" ")
                     .append(EMPTY);
 //                    .append(" ");
         } else {
-            result.append(SET_BG_COLOR_WHITE + SET_TEXT_COLOR_WHITE)
+            result.append(SET_BG_COLOR_SOFT_WHITE + SET_TEXT_COLOR_SOFT_WHITE)
 //                    .append(" ")
-                    .append(SET_TEXT_COLOR_BLACK)
                     .append(determineChessPiece(piece))
-                    .append(SET_TEXT_COLOR_WHITE);
+                    .append(SET_TEXT_COLOR_SOFT_WHITE);
 //                    .append(" ");
         }
     }
 
     private void appendDarkSquare(StringBuilder result, ChessPiece piece) {
         if (piece == null) {
-            result.append(SET_BG_COLOR_DARK_GREEN + SET_TEXT_COLOR_DARK_GREEN)
+            result.append(SET_BG_COLOR_LIGHT_GREEN + SET_TEXT_COLOR_LIGHT_GREEN)
 //                    .append(" ")
                     .append(EMPTY);
 //                    .append(" ");
         } else {
-            result.append(SET_BG_COLOR_DARK_GREEN + SET_TEXT_COLOR_DARK_GREEN)
+            result.append(SET_BG_COLOR_LIGHT_GREEN + SET_TEXT_COLOR_LIGHT_GREEN)
 //                    .append(" ")
-                    .append(SET_TEXT_COLOR_BLACK)
                     .append(determineChessPiece(piece))
-                    .append(SET_TEXT_COLOR_DARK_GREEN);
+                    .append(SET_TEXT_COLOR_LIGHT_GREEN);
 //                    .append(" ");
         }
     }
 
     private void appendNumber(StringBuilder result, int i) {
-        result.append(SET_BG_COLOR_DARK_GREY + SET_TEXT_COLOR_DARK_GREY)
+        result.append(SET_BG_COLOR_CHESS_BACKGROUND + SET_TEXT_COLOR_CHESS_BACKGROUND)
                 .append(" ").append(SET_TEXT_COLOR_WHITE).append(i)
-                .append(SET_TEXT_COLOR_DARK_GREY).append(" ");
+                .append(SET_TEXT_COLOR_CHESS_BACKGROUND).append(" ");
     }
 
     private String determineChessPiece(ChessPiece piece) {
         if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
             return switch (piece.getPieceType()) {
-                case QUEEN -> WHITE_QUEEN;
-                case KING -> WHITE_KING;
-                case BISHOP -> WHITE_BISHOP;
-                case KNIGHT -> WHITE_KNIGHT;
-                case ROOK -> WHITE_ROOK;
-                case PAWN -> WHITE_PAWN;
+                case QUEEN -> SET_TEXT_COLOR_WHITE_PIECE + WHITE_QUEEN;
+                case KING -> SET_TEXT_COLOR_WHITE_PIECE + WHITE_KING;
+                case BISHOP -> SET_TEXT_COLOR_WHITE_PIECE + WHITE_BISHOP;
+                case KNIGHT -> SET_TEXT_COLOR_WHITE_PIECE + WHITE_KNIGHT;
+                case ROOK -> SET_TEXT_COLOR_WHITE_PIECE + WHITE_ROOK;
+                case PAWN -> SET_TEXT_COLOR_WHITE_PIECE + WHITE_PAWN;
             };
         } else {
             return switch (piece.getPieceType()) {
-                case QUEEN -> BLACK_QUEEN;
-                case KING -> BLACK_KING;
-                case BISHOP -> BLACK_BISHOP;
-                case KNIGHT -> BLACK_KNIGHT;
-                case ROOK -> BLACK_ROOK;
-                case PAWN -> BLACK_PAWN;
+                case QUEEN -> SET_TEXT_COLOR_BLACK + BLACK_QUEEN;
+                case KING -> SET_TEXT_COLOR_BLACK + BLACK_KING;
+                case BISHOP -> SET_TEXT_COLOR_BLACK + BLACK_BISHOP;
+                case KNIGHT -> SET_TEXT_COLOR_BLACK + BLACK_KNIGHT;
+                case ROOK -> SET_TEXT_COLOR_BLACK + BLACK_ROOK;
+                case PAWN -> SET_TEXT_COLOR_BLACK + BLACK_PAWN;
             };
         }
     }
 
     private void appendLettersRow(StringBuilder result, String[] letters) {
-        result.append(SET_BG_COLOR_DARK_GREY + SET_TEXT_COLOR_DARK_GREY + "   ");
+        result.append(SET_BG_COLOR_CHESS_BACKGROUND + SET_TEXT_COLOR_CHESS_BACKGROUND + "   ");
         for (String letter : letters) {
-            result.append(" " + SET_TEXT_COLOR_WHITE).append(letter).append(SET_TEXT_COLOR_DARK_GREY).append(" ");
+            result.append(" " + SET_TEXT_COLOR_WHITE).append(letter).append(SET_TEXT_COLOR_CHESS_BACKGROUND).append(" ");
         }
         result.append("   ").append(RESET_BG_COLOR).append("\n");
     }
