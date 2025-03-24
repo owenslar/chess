@@ -18,17 +18,17 @@ public class GameplayRepl {
         System.out.print(client.stringifyGame(game, orientation));
 
         Scanner scanner = new Scanner(System.in);
-        String result = "";
-        while (!result.equals(SET_TEXT_COLOR_BLUE + "leaving game")) {
+        String resultStr = "";
+        while (!resultStr.equals(SET_TEXT_COLOR_BLUE + "leaving game")) {
             printPrompt();
             String line = scanner.nextLine();
 
             try {
-                result = client.eval(line);
-                System.out.print(result);
+                resultStr = client.eval(line);
+                System.out.print(resultStr);
             } catch (Throwable e) {
-                String msg = e.toString();
-                System.out.print(msg);
+                String message = e.toString();
+                System.out.print(message);
             }
         }
         System.out.println();

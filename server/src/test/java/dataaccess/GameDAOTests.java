@@ -170,19 +170,19 @@ public class GameDAOTests {
             try (Statement stmt = conn.createStatement()) {
                 ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM games");
                 if (rs.next()) {
-                    int count = rs.getInt(1);
-                    Assertions.assertEquals(0, count);
+                    int num = rs.getInt(1);
+                    Assertions.assertEquals(0, num);
                 }
             }
         } catch (SQLException e) {
-            Assertions.fail("Caught unexpected SQL exception");
+            Assertions.fail("Caught an unexpected SQL exception");
         } catch (DataAccessException e) {
-            Assertions.fail("Caught unexpected DAE exception");
+            Assertions.fail("Caught an unexpected DAE exception");
         }
     }
 
     @AfterEach
-    public void cleanUp() {
+    public void cleanUpDB() {
         try (var conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement("""
                 DELETE FROM games
