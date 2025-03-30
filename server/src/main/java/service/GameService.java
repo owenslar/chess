@@ -79,6 +79,9 @@ public class GameService {
         AuthData callerAuthData = authDAO.getAuth(r.authToken());
 
         if (r.playerColor().equals("WHITE")) {
+            if (Objects.equals(requestedGameData.whiteUsername(), callerAuthData.username())) {
+                return new JoinResult(null, 200);
+            }
             if (requestedGameData.whiteUsername() != null) {
                 return new JoinResult("Error: already taken", 403);
             }
@@ -90,6 +93,9 @@ public class GameService {
             gameDAO.updateGame(newGameData);
         }
         else {
+            if (Objects.equals(requestedGameData.blackUsername(), callerAuthData.username())) {
+                return new JoinResult(null, 200);
+            }
             if (requestedGameData.blackUsername() != null) {
                 return new JoinResult("Error: already taken", 403);
             }

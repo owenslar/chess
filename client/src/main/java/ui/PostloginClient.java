@@ -65,6 +65,8 @@ public class PostloginClient {
                 return "";
             } catch (NumberFormatException e) {
                 throw new ResponseException(400, "Expected: <gameNumber> [WHITE|BLACK]");
+            } catch (NullPointerException e) {
+                throw new ResponseException(400, "Invalid game number");
             }
         }
         throw new ResponseException(400, "Expected: <id> [WHITE|BLACK]");
