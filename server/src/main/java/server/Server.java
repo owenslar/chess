@@ -7,6 +7,7 @@ import service.ClearService;
 import service.GameService;
 import service.UserService;
 import spark.*;
+import websocket.WebSocketHandler;
 
 import java.util.Map;
 
@@ -16,6 +17,7 @@ public class Server {
     private final GameService gameService;
     private final ClearService clearService;
     private final AuthDAO authDAO;
+    private final WebSocketHandler webSocketHandler;
 
     public Server() {
         UserDAO userDAO = DaoFactory.createUserDAO();
@@ -26,6 +28,8 @@ public class Server {
         gameService = new GameService(gameDAO, authDAO);
         clearService = new ClearService(userDAO, gameDAO, authDAO);
         this.authDAO = authDAO;
+
+        webSocketHandler = new WebSocketHandler();
     }
 
     public Server(UserService userService, GameService gameService, ClearService clearService, AuthDAO authDAO) {
@@ -33,6 +37,8 @@ public class Server {
         this.gameService = gameService;
         this.clearService = clearService;
         this.authDAO = authDAO;
+
+        webSocketHandler = new WebSocketHandler();
     }
 
     public int run(int desiredPort) {
@@ -62,6 +68,9 @@ public class Server {
     }
 
     private void createRoutes() {
+
+        Spark.webSocket("/ws", webSocketHandler);
+
         Spark.post("/user", new RegisterHandler(authDAO, userService));
         Spark.post("/session", new LoginHandler(authDAO, userService));
         Spark.delete("/session", new LogoutHandler(authDAO, userService));
