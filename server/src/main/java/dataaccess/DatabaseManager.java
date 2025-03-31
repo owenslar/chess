@@ -77,7 +77,7 @@ public class DatabaseManager {
                 `userId` INT PRIMARY KEY AUTO_INCREMENT,
                 `username` VARCHAR(50) NOT NULL UNIQUE,
                 `password` VARCHAR(300) NOT NULL,
-                `email` VARCHAR(50) NOT NULL UNIQUE,
+                `email` VARCHAR(50) NOT NULL,
                 INDEX(username)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """,

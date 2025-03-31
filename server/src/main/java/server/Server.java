@@ -29,16 +29,16 @@ public class Server {
         clearService = new ClearService(userDAO, gameDAO, authDAO);
         this.authDAO = authDAO;
 
-        webSocketHandler = new WebSocketHandler();
+        webSocketHandler = new WebSocketHandler(authDAO, gameDAO);
     }
 
-    public Server(UserService userService, GameService gameService, ClearService clearService, AuthDAO authDAO) {
+    public Server(UserService userService, GameService gameService, ClearService clearService, AuthDAO authDAO, GameDAO gameDAO) {
         this.userService = userService;
         this.gameService = gameService;
         this.clearService = clearService;
         this.authDAO = authDAO;
 
-        webSocketHandler = new WebSocketHandler();
+        webSocketHandler = new WebSocketHandler(authDAO, gameDAO);
     }
 
     public int run(int desiredPort) {
@@ -50,6 +50,8 @@ public class Server {
         }
 
         Spark.port(desiredPort);
+
+        Spark.webSocket("/ws", webSocketHandler);
 
         Spark.staticFiles.location("web");
 
@@ -68,8 +70,6 @@ public class Server {
     }
 
     private void createRoutes() {
-
-        Spark.webSocket("/ws", webSocketHandler);
 
         Spark.post("/user", new RegisterHandler(authDAO, userService));
         Spark.post("/session", new LoginHandler(authDAO, userService));

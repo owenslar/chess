@@ -18,7 +18,7 @@ public class ServerMain {
         GameService gameService = new GameService(gameDAO, authDAO);
         ClearService clearService = new ClearService(userDAO, gameDAO, authDAO);
 
-        server.Server server = new server.Server(userService, gameService, clearService, authDAO);
+        server.Server server = new server.Server(userService, gameService, clearService, authDAO, gameDAO);
         server.run(8080);
     }
 }
