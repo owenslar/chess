@@ -1,5 +1,7 @@
 package websocket.commands;
 
+import com.google.gson.Gson;
+
 import java.util.Objects;
 
 /**
@@ -15,6 +17,8 @@ public class UserGameCommand {
     private final String authToken;
 
     private final Integer gameID;
+
+    private static final Gson gson = new Gson();
 
     public UserGameCommand(CommandType commandType, String authToken, Integer gameID) {
         this.commandType = commandType;
@@ -39,6 +43,10 @@ public class UserGameCommand {
 
     public Integer getGameID() {
         return gameID;
+    }
+
+    public String toString() {
+        return gson.toJson(this);
     }
 
     @Override
