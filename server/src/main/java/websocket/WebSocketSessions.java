@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebSocketSessions {
 
     private final ConcurrentHashMap<Integer, Set<Session>> sessionMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Session, Integer> reverseMap = new ConcurrentHashMap<>();
 
     public void addSessionToGame(Integer gameID, Session session) {
         sessionMap.compute(gameID, (k, set) -> {
@@ -17,6 +18,7 @@ public class WebSocketSessions {
             set.add(session);
             return set;
         });
+        reverseMap.put(session, gameID);
     }
 
     public void removeSessionFromGame(Integer gameID, Session session) {
@@ -24,6 +26,7 @@ public class WebSocketSessions {
             set.remove(session);
             return set.isEmpty() ? null : set;
         });
+        reverseMap.remove(session);
     }
 
     public void removeSession(Session session) {
@@ -32,9 +35,14 @@ public class WebSocketSessions {
                 sessionMap.remove(gameID);
             }
         });
+        reverseMap.remove(session);
     }
 
     public Set<Session> getSessionsForGame(Integer gameID) {
         return sessionMap.get(gameID);
+    }
+
+    public Integer getIDForSession(Session session) {
+        return reverseMap.get(session);
     }
 }

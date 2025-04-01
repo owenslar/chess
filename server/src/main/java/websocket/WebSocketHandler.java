@@ -37,7 +37,6 @@ public class WebSocketHandler {
     private final GameDAO gameDAO;
 
     public WebSocketHandler(AuthDAO authDAO, GameDAO gameDAO) {
-        System.out.println("Made it into websockethandler");
         this.authDAO = authDAO;
         this.gameDAO = gameDAO;
     }
@@ -160,7 +159,12 @@ public class WebSocketHandler {
                     null, gameData.gameName(), gameData.game());
             gameDAO.updateGame(newGameData);
         } else {
+            if (!Objects.equals(sessions.getIDForSession(session), commandObject.getGameID())) {
+                sendMessage(session, new ErrorMessage("Error: invalid leave command"));
+                return;
+            }
             broadcastMessage(commandObject.getGameID(), new NotificationMessage(authData.username() + " is no longer observing the game"), session);
+            sessions.removeSessionFromGame(commandObject.getGameID(), session);
             return;
         }
 
