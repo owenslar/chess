@@ -14,6 +14,7 @@ public class ChessGame {
 
     ChessBoard board = new ChessBoard();
     TeamColor teamTurn = TeamColor.WHITE;
+    boolean isOver = false;
 
     public ChessGame() {
         board.resetBoard();
@@ -95,7 +96,7 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPiece movingPiece = board.getPiece(move.getStartPosition());
-        if (movingPiece != null && movingPiece.getTeamColor() == this.getTeamTurn()) {
+        if (movingPiece != null && movingPiece.getTeamColor() == this.getTeamTurn() && !isOver) {
             Collection<ChessMove> validMoves = this.validMoves(move.getStartPosition());
             for (ChessMove validMove : validMoves) {
                 if (move.equals(validMove)) {
@@ -208,6 +209,14 @@ public class ChessGame {
             }
         }
         return true;
+    }
+
+    public void setIsOver(boolean newBool) {
+        isOver = newBool;
+    }
+
+    public boolean getIsOver() {
+        return isOver;
     }
 
     @Override

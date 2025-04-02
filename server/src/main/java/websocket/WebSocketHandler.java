@@ -1,5 +1,9 @@
 package websocket;
 
+import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dataaccess.AuthDAO;
@@ -57,7 +61,7 @@ public class WebSocketHandler {
                         connect(session, commandObject);
                         break;
                     case MAKE_MOVE:
-                        makeMove(session, commandObject);
+                        makeMove(session, (MakeMoveCommand) commandObject);
                         break;
                     case LEAVE:
                         leave(session, commandObject);
@@ -66,7 +70,7 @@ public class WebSocketHandler {
                         resign(session, commandObject);
                         break;
                     default:
-                        sendMessage(session, new ErrorMessage("Error: Invalid command"));
+                        sendMessage(session, new ErrorMessage("Error: Invalid command type"));
                 }
             }
 
@@ -82,7 +86,7 @@ public class WebSocketHandler {
             sendMessage(session, new ErrorMessage("Error: no AuthToken provided"));
             return;
         }
-        if (commandObject.getCommandType() == null) {
+        if (commandObject.getGameID() == null) {
             sendMessage(session, new ErrorMessage("Error: no GameID provided"));
             return;
         }
@@ -96,7 +100,7 @@ public class WebSocketHandler {
         // 2. Send a LOAD_GAME message to current session
         GameData currentGame = gameDAO.getGame(commandObject.getGameID());
         if (currentGame == null) {
-            sendMessage(session, new ErrorMessage("Error: game not found"));
+            sendMessage(session, new ErrorMessage("Error: invalid gameID"));
             return;
         }
         LoadGameMessage loadGameMessage = new LoadGameMessage(currentGame.game());
@@ -124,8 +128,100 @@ public class WebSocketHandler {
         return notificationMessage;
     }
 
-    private void makeMove(Session session, UserGameCommand commandObject) {
+    private void makeMove(Session session, MakeMoveCommand commandObject) throws IOException, DataAccessException {
+        // 1. Validate input fields (authtoken, gameID, chessMove)
+        String authToken = commandObject.getAuthToken();
+        Integer gameID = commandObject.getGameID();
+        ChessMove move = commandObject.getMove();
+        if (authToken == null) {
+            sendMessage(session, new ErrorMessage("Error: no authToken provided"));
+            return;
+        }
+        if (gameID == null) {
+            sendMessage(session, new ErrorMessage("Error: no gameID provided"));
+            return;
+        }
+        if (move == null) {
+            sendMessage(session, new ErrorMessage("Error: no chess move provided"));
+            return;
+        }
 
+        // 2. authenticate user
+        AuthData authData = authDAO.getAuth(authToken);
+        if (authData == null) {
+            sendMessage(session, new ErrorMessage("Error: unauthorized"));
+            return;
+        }
+
+        GameData gameData = gameDAO.getGame(gameID);
+        if (gameData == null) {
+            sendMessage(session, new ErrorMessage("Error: invalid gameID"));
+            return;
+        }
+
+        // 3. verify the validity of the requested move and update the game to represent the move
+        int startPosCol = move.getStartPosition().getColumn();
+        int startPosRow = move.getStartPosition().getRow();
+        int endPosCol = move.getEndPosition().getColumn();
+        int endPosRow = move.getEndPosition().getRow();
+        if (startPosCol > 8 || startPosCol < 1 || startPosRow > 8 || startPosRow < 1 || endPosRow > 8 || endPosRow < 1 || endPosCol > 8 || endPosCol < 1) {
+            sendMessage(session, new ErrorMessage("Error: invalid move (out of bounds)"));
+            return;
+        }
+        ChessGame.TeamColor moveColor = gameData.game().getBoard().getPiece(move.getStartPosition()).getTeamColor();
+        if (moveColor == null) {
+            sendMessage(session, new ErrorMessage("Error: invalid move"));
+            return;
+        }
+        try {
+            gameData.game().makeMove(move);
+        } catch (InvalidMoveException e) {
+            sendMessage(session, new ErrorMessage("Error: invalid move"));
+            return;
+        }
+
+        // 3.5. check if the move resulted in checkmate or stalemate and mark the game as over if it did
+        ChessGame.TeamColor defendingColor = (moveColor == ChessGame.TeamColor.WHITE)
+                ? ChessGame.TeamColor.BLACK
+                : ChessGame.TeamColor.WHITE;
+
+        boolean isCheckmate = gameData.game().isInCheckmate(defendingColor);
+        boolean isStalemate = gameData.game().isInStalemate(defendingColor);
+        boolean isCheck = gameData.game().isInCheck(defendingColor);
+
+        if (isCheckmate || isStalemate) {
+            gameData.game().setIsOver(true);
+        }
+
+        // 4. update the game in the database
+        gameDAO.updateGame(gameData);
+
+
+        // 5. send load_game message to all clients in game
+        LoadGameMessage loadGameMessage = new LoadGameMessage(gameData.game());
+        broadcastMessage(gameID, loadGameMessage, null);
+
+        // 6. send a notification to all OTHER clients telling them what move was made
+        NotificationMessage moveMessage = new NotificationMessage(authData.username() + " moved: " +
+                convertChessPosition(move.getStartPosition()) + " -> " + convertChessPosition(move.getEndPosition()));
+        broadcastMessage(gameID, moveMessage, session);
+
+        // 7. if the move results in check or checkmate send a notification message to all clients
+        //    (also mark the game as over before sending it if it resulted in checkmate)
+        if (isCheckmate) {
+            NotificationMessage checkmateMessage = new NotificationMessage("CHECKMATE! " + authData.username() + " won the game");
+            broadcastMessage(gameID, checkmateMessage, null);
+            return;
+        }
+        if (isStalemate) {
+            NotificationMessage stalemateMessage = new NotificationMessage("Stalemate! The game has ended in a draw");
+            broadcastMessage(gameID, stalemateMessage, null);
+            return;
+        }
+        if (isCheck) {
+            NotificationMessage checkMessage = new NotificationMessage("The " + defendingColor + " king is now in check!");
+            broadcastMessage(gameID, checkMessage, null);
+        }
     }
 
     private void leave(Session session, UserGameCommand commandObject) throws IOException, DataAccessException {
@@ -147,7 +243,7 @@ public class WebSocketHandler {
         // 2. Retrieve the game from the db, update it by removing the player, update it in the DB
         GameData gameData = gameDAO.getGame(commandObject.getGameID());
         if (gameData == null) {
-            sendMessage(session, new ErrorMessage("Error: game not found"));
+            sendMessage(session, new ErrorMessage("Error: invalid gameID"));
             return;
         }
         if (Objects.equals(gameData.whiteUsername(), authData.username())) {
@@ -175,8 +271,37 @@ public class WebSocketHandler {
         sessions.removeSessionFromGame(commandObject.getGameID(), session);
     }
 
-    private void resign(Session session, UserGameCommand commandObject) {
+    private void resign(Session session, UserGameCommand commandObject) throws IOException, DataAccessException {
+        // 1. validate commands
+        if (commandObject.getAuthToken() == null) {
+            sendMessage(session, new ErrorMessage("Error: no authToken provided"));
+            return;
+        }
 
+        if (commandObject.getGameID() == null) {
+            sendMessage(session, new ErrorMessage("Error: no gameID provided"));
+            return;
+        }
+
+        // 2. authenticate user
+        AuthData authData = authDAO.getAuth(commandObject.getAuthToken());
+        if (authData == null) {
+            sendMessage(session, new ErrorMessage("Error: unauthorized"));
+            return;
+        }
+
+        // 3. mark the game as over and update it in database
+        GameData gameData = gameDAO.getGame(commandObject.getGameID());
+        if (gameData == null) {
+            sendMessage(session, new ErrorMessage("Error: invalid gameID"));
+            return;
+        }
+        gameData.game().setIsOver(true);
+        gameDAO.updateGame(gameData);
+
+        // 4. send a notification to ALL users in the game informing them that he resigned
+        NotificationMessage notificationMessage = new NotificationMessage(authData.username() + " resigned the game");
+        broadcastMessage(commandObject.getGameID(), notificationMessage, null);
     }
 
     private void sendMessage(Session session, ServerMessage messageObject) throws IOException {
@@ -205,6 +330,38 @@ public class WebSocketHandler {
         }
     }
 
+    private String convertChessPosition(ChessPosition pos) {
+        String result = "";
+        switch (pos.getColumn()) {
+            case 1:
+                result += "a";
+                break;
+            case 2:
+                result += "b";
+                break;
+            case 3:
+                result += "c";
+                break;
+            case 4:
+                result += "d";
+                break;
+            case 5:
+                result += "e";
+                break;
+            case 6:
+                result += "f";
+                break;
+            case 7:
+                result += "g";
+                break;
+            case 8:
+                result += "h";
+                break;
+        }
+        result += pos.getRow();
+        return result;
+    }
+
     private UserGameCommand deserializeMessage(String message) throws IllegalArgumentException {
         JsonObject jsonObject = gson.fromJson(message, JsonObject.class);
 
@@ -212,7 +369,7 @@ public class WebSocketHandler {
             throw new IllegalArgumentException("Missing commandType field");
         }
         String commandString = jsonObject.get("commandType").getAsString();
-        CommandType commandType = CommandType.valueOf(commandString);
+        CommandType commandType = valueOf(commandString);
 
         if (commandType == MAKE_MOVE) {
             return gson.fromJson(message, MakeMoveCommand.class);
