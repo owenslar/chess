@@ -173,6 +173,27 @@ public class WebSocketHandler {
             sendMessage(session, new ErrorMessage("Error: invalid move"));
             return;
         }
+        ChessGame.TeamColor playerColor = null;
+        boolean isBothPlayers = false;
+        if (Objects.equals(gameData.whiteUsername(), authData.username())) {
+            playerColor = ChessGame.TeamColor.WHITE;
+        }
+        if (Objects.equals(gameData.blackUsername(), authData.username())) {
+            if (playerColor == ChessGame.TeamColor.WHITE) {
+                isBothPlayers = true;
+            }
+            playerColor = ChessGame.TeamColor.BLACK;
+        }
+        if (!Objects.equals(gameData.blackUsername(), authData.username()) &&
+                !Objects.equals(gameData.whiteUsername(), authData.username())) {
+            playerColor = null;
+        }
+        if (playerColor == null || playerColor != gameData.game().getTeamTurn()) {
+            if (!isBothPlayers) {
+                sendMessage(session, new ErrorMessage("Error: not your turn"));
+                return;
+            }
+        }
         try {
             gameData.game().makeMove(move);
         } catch (InvalidMoveException e) {
@@ -290,12 +311,24 @@ public class WebSocketHandler {
             return;
         }
 
+
         // 3. mark the game as over and update it in database
         GameData gameData = gameDAO.getGame(commandObject.getGameID());
         if (gameData == null) {
             sendMessage(session, new ErrorMessage("Error: invalid gameID"));
             return;
         }
+
+        if (!Objects.equals(authData.username(), gameData.whiteUsername()) &&
+                !Objects.equals(authData.username(), gameData.blackUsername())) {
+            sendMessage(session, new ErrorMessage("Error: cannot resign as an observer"));
+            return;
+        }
+        if (gameData.game().getIsOver()) {
+            sendMessage(session, new ErrorMessage("Error: game already resigned"));
+            return;
+        }
+
         gameData.game().setIsOver(true);
         gameDAO.updateGame(gameData);
 
