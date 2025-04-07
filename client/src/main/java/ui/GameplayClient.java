@@ -8,6 +8,7 @@ import websocket.commands.UserGameCommand;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 import static websocket.commands.UserGameCommand.CommandType.*;
@@ -38,6 +39,7 @@ public class GameplayClient {
                 case "leave" -> SET_TEXT_COLOR_BLUE + leave(params);
                 case "redraw" -> SET_TEXT_COLOR_BLUE + redraw(params);
                 case "move" -> SET_TEXT_COLOR_BLUE + makeMove(params);
+                case "resign" -> SET_TEXT_COLOR_BLUE + resign(params);
                 default -> SET_TEXT_COLOR_RED + "\nCommand not found, here are the valid commands:\n" + SET_TEXT_COLOR_BLUE + help();
             };
         } catch (ResponseException ex) {
@@ -50,6 +52,27 @@ public class GameplayClient {
         ws.connect(connectCommand);
     }
 
+    public String resign(String... params) {
+        if (params.length == 0) {
+            Scanner scanner = new Scanner(System.in);
+            while (true) {
+                System.out.println(SET_TEXT_COLOR_BLUE + "Are you sure you want to resign? y/n");
+                GameplayRepl.printPrompt();
+                String line = scanner.nextLine().trim().toLowerCase();
+                if (line.equals("y")) {
+                    UserGameCommand resignCommand = new UserGameCommand(RESIGN, authToken, gameID);
+                    ws.resign(resignCommand);
+                    return "";
+                } else if (line.equals("n")) {
+                    return "";
+                } else {
+                    System.out.println(SET_TEXT_COLOR_RED + "Invalid input. Please type 'y' or 'n'.");
+                }
+            }
+        }
+        throw new ResponseException(400, "Expected no arguments after 'resign'");
+    }
+
     public String makeMove(String... params) throws ResponseException {
         if (params.length == 2) {
             String start = params[0];
@@ -59,6 +82,9 @@ public class GameplayClient {
                     == ChessPiece.PieceType.PAWN && (move.getEndPosition().getRow() == 1 || move.getEndPosition().getRow() == 8)) {
                 throw new ResponseException(400, "Invalid move: promotion piece required");
             }
+            if (game.getIsOver()) {
+                throw new ResponseException(400, "Invalid move: the game is over");
+            }
             MakeMoveCommand moveCommand = new MakeMoveCommand(authToken, gameID, move);
             ws.makeMove(moveCommand);
             return "";
@@ -67,6 +93,9 @@ public class GameplayClient {
             String end = params[1];
             String promotionPiece = params[2].toUpperCase();
             ChessMove move = convertToChessMove(start, end, promotionPiece);
+            if (game.getIsOver()) {
+                throw new ResponseException(400, "Invalid move: the game is over");
+            }
             MakeMoveCommand moveCommand = new MakeMoveCommand(authToken, gameID, move);
             ws.makeMove(moveCommand);
             return "";
@@ -90,10 +119,20 @@ public class GameplayClient {
 
     private ChessPosition convertToChessPosition(String pos) throws ResponseException {
         if (pos.isEmpty()) {
-            throw new ResponseException(400, "invalid move (missing location)");
+            throw new ResponseException(400, "invalid move: missing location");
         }
+        int col = getCol(pos);
+        char rowLetter = pos.charAt(1);
+        if (!Character.isDigit(rowLetter)) {
+            throw new ResponseException(400, "invalid move (invalid row format)");
+        }
+        int row = Character.getNumericValue(rowLetter);
+        return new ChessPosition(row, col);
+    }
+
+    private int getCol(String pos) {
         if (!(pos.length() == 2)) {
-            throw new ResponseException(400, "invalid move (expected a letter and a number)");
+            throw new ResponseException(400, "invalid move: expected a letter (a-h) and a number (1-8) for each position");
         }
         char colLetter = pos.charAt(0);
         int col;
@@ -108,12 +147,7 @@ public class GameplayClient {
             case 'h' -> col = 8;
             default -> throw new ResponseException(400, "invalid move (invalid column)");
         }
-        char rowLetter = pos.charAt(1);
-        if (!Character.isDigit(rowLetter)) {
-            throw new ResponseException(400, "invalid move (invalid row format)");
-        }
-        int row = Character.getNumericValue(rowLetter);
-        return new ChessPosition(row, col);
+        return col;
     }
 
     public String leave(String... params) {

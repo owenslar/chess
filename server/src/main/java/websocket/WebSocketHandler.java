@@ -175,25 +175,28 @@ public class WebSocketHandler {
         }
         ChessGame.TeamColor playerColor = null;
         boolean isBothPlayers = false;
-        if (Objects.equals(gameData.whiteUsername(), authData.username())) {
+        boolean whiteUser = Objects.equals(gameData.whiteUsername(), authData.username());
+        boolean blackUser = Objects.equals(gameData.blackUsername(), authData.username());
+        if (whiteUser) {
             playerColor = ChessGame.TeamColor.WHITE;
         }
-        if (Objects.equals(gameData.blackUsername(), authData.username())) {
+        if (blackUser) {
             if (playerColor == ChessGame.TeamColor.WHITE) {
                 isBothPlayers = true;
             }
             playerColor = ChessGame.TeamColor.BLACK;
         }
-        if (!Objects.equals(gameData.blackUsername(), authData.username()) &&
-                !Objects.equals(gameData.whiteUsername(), authData.username())) {
-            playerColor = null;
+        if (playerColor == null) {
+            sendMessage(session, new ErrorMessage("Error: cannot make a move as an observer"));
+            return;
         }
-        if (playerColor == null || playerColor != gameData.game().getTeamTurn()) {
+        if (playerColor != gameData.game().getTeamTurn()) {
             if (!isBothPlayers) {
                 sendMessage(session, new ErrorMessage("Error: not your turn"));
                 return;
             }
         }
+
         try {
             gameData.game().makeMove(move);
         } catch (InvalidMoveException e) {

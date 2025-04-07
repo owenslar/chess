@@ -53,7 +53,7 @@ public class GameplayRepl implements NotificationHandler {
         printPrompt();
     }
 
-    private void printPrompt() {
+    public static void printPrompt() {
         System.out.print("\n" + SET_TEXT_COLOR_LIGHT_GREY + "Chess Game >>> " + SET_TEXT_COLOR_GREEN);
     }
 }
