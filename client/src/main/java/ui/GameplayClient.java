@@ -16,6 +16,7 @@ public class GameplayClient {
     private final String serverUrl;
     private final String authToken;
     private final ServerFacade server;
+    ChessGame game;
 
     public GameplayClient(String serverUrl, String authToken, ServerFacade server) {
         this.serverUrl = serverUrl;
