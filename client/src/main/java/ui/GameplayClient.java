@@ -20,12 +20,14 @@ public class GameplayClient {
     private final Integer gameID;
     private ChessGame game;
     private final WebSocketFacade ws;
+    private final String orientation;
 
-    public GameplayClient(String serverUrl, String authToken, Integer gameID, NotificationHandler notificationHandler) {
+    public GameplayClient(String serverUrl, String authToken, Integer gameID, NotificationHandler notificationHandler, String orientation) {
         this.serverUrl = serverUrl;
         this.authToken = authToken;
         this.gameID = gameID;
         ws = new WebSocketFacade(serverUrl, notificationHandler);
+        this.orientation = orientation;
     }
 
     public String eval(String input) {
@@ -36,6 +38,7 @@ public class GameplayClient {
             return switch (cmd) {
                 case "help" -> SET_TEXT_COLOR_BLUE + help();
                 case "leave" -> SET_TEXT_COLOR_BLUE + leave(params);
+                case "redraw" -> SET_TEXT_COLOR_BLUE + redraw(params);
                 default -> SET_TEXT_COLOR_RED + "\nCommand not found, here are the valid commands:\n" + SET_TEXT_COLOR_BLUE + help();
             };
         } catch (ResponseException ex) {
@@ -52,9 +55,20 @@ public class GameplayClient {
         if (params.length == 0) {
             UserGameCommand leaveCommand = new UserGameCommand(LEAVE, authToken, gameID);
             ws.leave(leaveCommand);
-            return "leaving game";
+            return "left game";
         }
         throw new ResponseException(400, "Expected no parameters after 'leave'");
+    }
+
+    public String redraw(String... params) {
+        if (params.length == 0) {
+            return "\n" + stringifyGame(this.game, orientation);
+        }
+        throw new ResponseException(400, "Expected no parameters after 'redraw'");
+    }
+
+    public void setGame(ChessGame game) {
+        this.game = game;
     }
 
     public String stringifyGame(ChessGame game, String orientation) {

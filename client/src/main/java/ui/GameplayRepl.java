@@ -14,7 +14,7 @@ public class GameplayRepl implements NotificationHandler {
     private final String orientation;
 
     public GameplayRepl(String serverUrl, String authToken, Integer gameID, String orientation) {
-        client = new GameplayClient(serverUrl, authToken, gameID, this);
+        client = new GameplayClient(serverUrl, authToken, gameID, this, orientation);
         client.connect(authToken, gameID);
         this.orientation = orientation;
     }
@@ -23,7 +23,7 @@ public class GameplayRepl implements NotificationHandler {
 
         Scanner scanner = new Scanner(System.in);
         String resultStr = "";
-        while (!resultStr.equals(SET_TEXT_COLOR_BLUE + "leaving game")) {
+        while (!resultStr.equals(SET_TEXT_COLOR_BLUE + "left game")) {
             printPrompt();
             String line = scanner.nextLine();
 
@@ -39,16 +39,16 @@ public class GameplayRepl implements NotificationHandler {
     }
 
     public void notify(ServerMessage message) {
-        if (message instanceof NotificationMessage notification) {
-            System.out.println(SET_TEXT_COLOR_YELLOW + notification.getMessage());
-        } else if (message instanceof  ErrorMessage error) {
-            System.out.println(SET_TEXT_COLOR_RED + error.getErrorMessage());
-        } else if (message instanceof LoadGameMessage loadGameMessage) {
-            System.out.println();
-            System.out.println(client.stringifyGame(loadGameMessage.getGame(), orientation));
-        }
-        else {
-            System.out.println(SET_TEXT_COLOR_RED + "Unknown message type received");
+        switch (message) {
+            case NotificationMessage notification ->
+                    System.out.println(SET_TEXT_COLOR_YELLOW + notification.getMessage());
+            case ErrorMessage error -> System.out.println(SET_TEXT_COLOR_RED + error.getErrorMessage());
+            case LoadGameMessage loadGameMessage -> {
+                client.setGame(loadGameMessage.getGame());
+                System.out.println();
+                System.out.println(client.stringifyGame(loadGameMessage.getGame(), orientation));
+            }
+            case null, default -> System.out.println(SET_TEXT_COLOR_RED + "Unknown message type received");
         }
         printPrompt();
     }
