@@ -1,11 +1,9 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import exception.ResponseException;
 import server.WebSocketFacade;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 
 import java.util.Arrays;
@@ -39,6 +37,7 @@ public class GameplayClient {
                 case "help" -> SET_TEXT_COLOR_BLUE + help();
                 case "leave" -> SET_TEXT_COLOR_BLUE + leave(params);
                 case "redraw" -> SET_TEXT_COLOR_BLUE + redraw(params);
+                case "move" -> SET_TEXT_COLOR_BLUE + makeMove(params);
                 default -> SET_TEXT_COLOR_RED + "\nCommand not found, here are the valid commands:\n" + SET_TEXT_COLOR_BLUE + help();
             };
         } catch (ResponseException ex) {
@@ -49,6 +48,72 @@ public class GameplayClient {
     public void connect(String authToken, Integer gameID) throws ResponseException {
         UserGameCommand connectCommand = new UserGameCommand(CONNECT, authToken, gameID);
         ws.connect(connectCommand);
+    }
+
+    public String makeMove(String... params) throws ResponseException {
+        if (params.length == 2) {
+            String start = params[0];
+            String end = params[1];
+            ChessMove move = convertToChessMove(start, end, null);
+            if (game.getBoard().getPiece(move.getStartPosition()).getPieceType()
+                    == ChessPiece.PieceType.PAWN && (move.getEndPosition().getRow() == 1 || move.getEndPosition().getRow() == 8)) {
+                throw new ResponseException(400, "Invalid move: promotion piece required");
+            }
+            MakeMoveCommand moveCommand = new MakeMoveCommand(authToken, gameID, move);
+            ws.makeMove(moveCommand);
+            return "";
+        } else if (params.length == 3) {
+            String start = params[0];
+            String end = params[1];
+            String promotionPiece = params[2].toUpperCase();
+            ChessMove move = convertToChessMove(start, end, promotionPiece);
+            MakeMoveCommand moveCommand = new MakeMoveCommand(authToken, gameID, move);
+            ws.makeMove(moveCommand);
+            return "";
+        }
+        throw new ResponseException(400, "Expected: move <start> <end> <promotionPiece> (promotionPiece may be empty)");
+    }
+
+    private ChessMove convertToChessMove(String start, String end, String promotionPiece) throws ResponseException {
+        ChessPosition startPos = convertToChessPosition(start);
+        ChessPosition endPos = convertToChessPosition(end);
+        ChessPiece.PieceType promotionPieceType = null;
+        if (promotionPiece != null) {
+            try {
+                promotionPieceType = ChessPiece.PieceType.valueOf(promotionPiece);
+            } catch (IllegalArgumentException e) {
+                throw new ResponseException(400, "Invalid promotion piece type, expected [QUEEN|ROOK|BISHOP|KNIGHT]");
+            }
+        }
+        return new ChessMove(startPos, endPos, promotionPieceType);
+    }
+
+    private ChessPosition convertToChessPosition(String pos) throws ResponseException {
+        if (pos.isEmpty()) {
+            throw new ResponseException(400, "invalid move (missing location)");
+        }
+        if (!(pos.length() == 2)) {
+            throw new ResponseException(400, "invalid move (expected a letter and a number)");
+        }
+        char colLetter = pos.charAt(0);
+        int col;
+        switch (colLetter) {
+            case 'a' -> col = 1;
+            case 'b' -> col = 2;
+            case 'c' -> col = 3;
+            case 'd' -> col = 4;
+            case 'e' -> col = 5;
+            case 'f' -> col = 6;
+            case 'g' -> col = 7;
+            case 'h' -> col = 8;
+            default -> throw new ResponseException(400, "invalid move (invalid column)");
+        }
+        char rowLetter = pos.charAt(1);
+        if (!Character.isDigit(rowLetter)) {
+            throw new ResponseException(400, "invalid move (invalid row format)");
+        }
+        int row = Character.getNumericValue(rowLetter);
+        return new ChessPosition(row, col);
     }
 
     public String leave(String... params) {
