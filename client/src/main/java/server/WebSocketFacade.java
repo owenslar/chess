@@ -84,6 +84,7 @@ public class WebSocketFacade extends Endpoint {
     public void leave(UserGameCommand leaveCommand) throws ResponseException {
         try {
             this.session.getBasicRemote().sendText(leaveCommand.toString());
+            this.session.close();
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }

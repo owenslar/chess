@@ -1,6 +1,5 @@
 package ui;
 
-import chess.ChessGame;
 import dtos.GameSummary;
 import exception.ResponseException;
 import requestresult.*;
@@ -46,10 +45,16 @@ public class PostloginClient {
 
     public String observe(String... params) throws ResponseException {
         if (params.length == 1) {
-            // This is all temporary code for observing, you probably need to change how this works later
-            GameplayRepl gameplayRepl = new GameplayRepl(serverUrl, authToken, server);
-            gameplayRepl.run(new ChessGame(), "WHITE");
-            return "";
+            try {
+                Integer gameID = Integer.parseInt(params[0]);
+                GameplayRepl gameplayRepl = new GameplayRepl(serverUrl, authToken, gameID, "WHITE");
+                gameplayRepl.run();
+                return "";
+            } catch (NumberFormatException ex) {
+                throw new ResponseException(400, "Expected: observe <gameNumber>");
+            } catch (NullPointerException ex) {
+                throw new ResponseException(400, "Invalid game number");
+            }
         }
         throw new ResponseException(400, "Expected: <gameNumber>");
     }
@@ -60,8 +65,8 @@ public class PostloginClient {
             try {
                 JoinRequest joinRequest = new JoinRequest(authToken, color, games.get(Integer.parseInt(params[0])));
                 server.join(joinRequest);
-                GameplayRepl gameplayRepl = new GameplayRepl(serverUrl, authToken, server);
-                gameplayRepl.run(new ChessGame(), color);
+                GameplayRepl gameplayRepl = new GameplayRepl(serverUrl, authToken, games.get(Integer.parseInt(params[0])), color);
+                gameplayRepl.run();
                 return "";
             } catch (NumberFormatException e) {
                 throw new ResponseException(400, "Expected: <gameNumber> [WHITE|BLACK]");

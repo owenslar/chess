@@ -5,23 +5,27 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import exception.ResponseException;
-import server.ServerFacade;
+import server.WebSocketFacade;
+import websocket.commands.UserGameCommand;
 
 import java.util.Arrays;
 import java.util.Objects;
 
 import static ui.EscapeSequences.*;
+import static websocket.commands.UserGameCommand.CommandType.*;
 
 public class GameplayClient {
     private final String serverUrl;
     private final String authToken;
-    private final ServerFacade server;
-    ChessGame game;
+    private final Integer gameID;
+    private ChessGame game;
+    private final WebSocketFacade ws;
 
-    public GameplayClient(String serverUrl, String authToken, ServerFacade server) {
+    public GameplayClient(String serverUrl, String authToken, Integer gameID, NotificationHandler notificationHandler) {
         this.serverUrl = serverUrl;
         this.authToken = authToken;
-        this.server = server;
+        this.gameID = gameID;
+        ws = new WebSocketFacade(serverUrl, notificationHandler);
     }
 
     public String eval(String input) {
@@ -29,10 +33,28 @@ public class GameplayClient {
             var tokens = input.split(" ");
             String cmd = (tokens.length > 0) ? tokens[0].toLowerCase() : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return SET_TEXT_COLOR_BLUE + "leaving game";
+            return switch (cmd) {
+                case "help" -> SET_TEXT_COLOR_BLUE + help();
+                case "leave" -> SET_TEXT_COLOR_BLUE + leave(params);
+                default -> SET_TEXT_COLOR_RED + "\nCommand not found, here are the valid commands:\n" + SET_TEXT_COLOR_BLUE + help();
+            };
         } catch (ResponseException ex) {
             return SET_TEXT_COLOR_RED + ex.getMessage();
         }
+    }
+
+    public void connect(String authToken, Integer gameID) throws ResponseException {
+        UserGameCommand connectCommand = new UserGameCommand(CONNECT, authToken, gameID);
+        ws.connect(connectCommand);
+    }
+
+    public String leave(String... params) {
+        if (params.length == 0) {
+            UserGameCommand leaveCommand = new UserGameCommand(LEAVE, authToken, gameID);
+            ws.leave(leaveCommand);
+            return "leaving game";
+        }
+        throw new ResponseException(400, "Expected no parameters after 'leave'");
     }
 
     public String stringifyGame(ChessGame game, String orientation) {
@@ -150,6 +172,16 @@ public class GameplayClient {
             result.append(" " + SET_TEXT_COLOR_WHITE).append(letter).append(SET_TEXT_COLOR_CHESS_BACKGROUND).append(" ");
         }
         result.append("   ").append(RESET_BG_COLOR).append("\n");
+    }
+
+    public String help() {
+        return "move <start> <end> <promotionPiece> " + SET_TEXT_COLOR_MAGENTA + "- make a move (promotionPiece can be empty)\n"
+                + SET_TEXT_COLOR_BLUE + "highlight <location> " + SET_TEXT_COLOR_MAGENTA + "- highlight valid moves for a piece\n" +
+                SET_TEXT_COLOR_BLUE + "redraw " + SET_TEXT_COLOR_MAGENTA + "- redraw the board\n" + SET_TEXT_COLOR_BLUE +
+                "resign " + SET_TEXT_COLOR_MAGENTA + "- resign the game\n" + SET_TEXT_COLOR_BLUE + "leave " +
+                SET_TEXT_COLOR_MAGENTA + "- leave the game\n" + SET_TEXT_COLOR_BLUE + "help " + SET_TEXT_COLOR_MAGENTA +
+                "- give possible commands\n";
+
     }
 
 }
