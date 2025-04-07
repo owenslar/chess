@@ -6,15 +6,12 @@ import server.WebSocketFacade;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 
 import static ui.EscapeSequences.*;
 import static websocket.commands.UserGameCommand.CommandType.*;
 
 public class GameplayClient {
-    private final String serverUrl;
     private final String authToken;
     private final Integer gameID;
     private ChessGame game;
@@ -22,7 +19,6 @@ public class GameplayClient {
     private final String orientation;
 
     public GameplayClient(String serverUrl, String authToken, Integer gameID, NotificationHandler notificationHandler, String orientation) {
-        this.serverUrl = serverUrl;
         this.authToken = authToken;
         this.gameID = gameID;
         ws = new WebSocketFacade(serverUrl, notificationHandler);
@@ -40,6 +36,7 @@ public class GameplayClient {
                 case "redraw" -> SET_TEXT_COLOR_BLUE + redraw(params);
                 case "move" -> SET_TEXT_COLOR_BLUE + makeMove(params);
                 case "resign" -> SET_TEXT_COLOR_BLUE + resign(params);
+                case "highlight" -> SET_TEXT_COLOR_BLUE + highlight(params);
                 default -> SET_TEXT_COLOR_RED + "\nCommand not found, here are the valid commands:\n" + SET_TEXT_COLOR_BLUE + help();
             };
         } catch (ResponseException ex) {
@@ -52,7 +49,23 @@ public class GameplayClient {
         ws.connect(connectCommand);
     }
 
-    public String resign(String... params) {
+    public String highlight(String... params) throws ResponseException {
+        if (params.length == 1) {
+            ChessPosition startPos = convertToChessPosition(params[0]);
+            ChessPiece piece = game.getBoard().getPiece(startPos);
+            if (piece == null) {
+                throw new ResponseException(400, "No piece in the provided square");
+            }
+            Collection<ChessMove> validMoves = game.validMoves(startPos);
+            if (validMoves.isEmpty()) {
+                return stringifyGame(game, orientation, validMoves) + "\n" + SET_TEXT_COLOR_RED + "no valid moves for that piece";
+            }
+            return stringifyGame(game, orientation, validMoves);
+        }
+        throw new ResponseException(400, "Expected: highlight <location> (location is a column and row ex. a5)");
+    }
+
+    public String resign(String... params) throws ResponseException {
         if (params.length == 0) {
             Scanner scanner = new Scanner(System.in);
             while (true) {
@@ -124,7 +137,7 @@ public class GameplayClient {
         int col = getCol(pos);
         char rowLetter = pos.charAt(1);
         if (!Character.isDigit(rowLetter)) {
-            throw new ResponseException(400, "invalid move (invalid row format)");
+            throw new ResponseException(400, "invalid move: row must be a digit 1-8");
         }
         int row = Character.getNumericValue(rowLetter);
         return new ChessPosition(row, col);
@@ -145,7 +158,7 @@ public class GameplayClient {
             case 'f' -> col = 6;
             case 'g' -> col = 7;
             case 'h' -> col = 8;
-            default -> throw new ResponseException(400, "invalid move (invalid column)");
+            default -> throw new ResponseException(400, "invalid move: column must be a letter a-h");
         }
         return col;
     }
@@ -161,7 +174,7 @@ public class GameplayClient {
 
     public String redraw(String... params) {
         if (params.length == 0) {
-            return "\n" + stringifyGame(this.game, orientation);
+            return "\n" + stringifyGame(this.game, orientation, null);
         }
         throw new ResponseException(400, "Expected no parameters after 'redraw'");
     }
@@ -170,36 +183,67 @@ public class GameplayClient {
         this.game = game;
     }
 
-    public String stringifyGame(ChessGame game, String orientation) {
+    public String stringifyGame(ChessGame game, String orientation, Collection<ChessMove> highlightMoves) {
         StringBuilder result = new StringBuilder();
         String[] letters = {"a","b","c","d","e","f","g","h"};
         if (Objects.equals(orientation, "BLACK")) {
             letters = new String[]{"h","g","f","e","d","c","b","a"};
         }
         appendLettersRow(result, letters);
-        appendChessBoard(result, game, orientation);
+        appendChessBoard(result, game, orientation, highlightMoves);
         appendLettersRow(result, letters);
         return result.toString();
     }
 
-    private void appendChessBoard(StringBuilder result, ChessGame game, String orientation) {
+    private void appendChessBoard(StringBuilder result, ChessGame game, String orientation, Collection<ChessMove> highlightMoves) {
         ChessBoard board = game.getBoard();
+        boolean isHighlightSquare;
+        boolean isBaseHighlightSquare;
         if (Objects.equals(orientation, "WHITE")) {
             for (int i = 8; i > 0; i--) {
                 appendNumber(result, i);
                 for (int j = 1; j < 9; j++) {
                     ChessPiece piece = board.getPiece(new ChessPosition(i, j));
-                    if (i % 2 == 0 && j % 2 == 1) {
-                        appendLightSquare(result, piece);
+                    isHighlightSquare = false;
+                    isBaseHighlightSquare = false;
+                    if (highlightMoves != null) {
+                        int finalI = i;
+                        int finalJ = j;
+                        isHighlightSquare = highlightMoves.stream()
+                                .anyMatch(move -> move.getEndPosition().equals(new ChessPosition(finalI, finalJ)));
+                        isBaseHighlightSquare = highlightMoves.stream()
+                            .anyMatch(move -> move.getStartPosition().equals(new ChessPosition(finalI, finalJ)));
+                    }
+                    if (isBaseHighlightSquare) {
+                        appendBaseHighlightSquare(result, piece);
+                    }
+                    else if (i % 2 == 0 && j % 2 == 1) {
+                        if (isHighlightSquare) {
+                            appendLightHighlightSquare(result, piece);
+                        } else {
+                            appendLightSquare(result, piece);
+                        }
                     }
                     else if (i % 2 == 0) {
-                        appendDarkSquare(result, piece);
+                        if (isHighlightSquare) {
+                            appendDarkHighlightSquare(result, piece);
+                        } else {
+                            appendDarkSquare(result, piece);
+                        }
                     }
                     else if (j % 2 == 0) {
-                        appendLightSquare(result, piece);
+                        if (isHighlightSquare) {
+                            appendLightHighlightSquare(result, piece);
+                        } else {
+                            appendLightSquare(result, piece);
+                        }
                     }
                     else {
-                        appendDarkSquare(result, piece);
+                        if (isHighlightSquare) {
+                            appendDarkHighlightSquare(result, piece);
+                        } else {
+                            appendDarkSquare(result, piece);
+                        }
                     }
                 }
                 appendNumber(result, i);
@@ -210,22 +254,81 @@ public class GameplayClient {
                 appendNumber(result, i);
                 for (int j = 8; j > 0; j--) {
                     ChessPiece piece = board.getPiece(new ChessPosition(i, j));
-                    if (i % 2 == 1 && j % 2 == 0) {
-                        appendLightSquare(result, piece);
+                    isHighlightSquare = false;
+                    isBaseHighlightSquare = false;
+                    if (highlightMoves != null) {
+                        int finalI = i;
+                        int finalJ = j;
+                        isHighlightSquare = highlightMoves.stream()
+                                .anyMatch(move -> move.getEndPosition().equals(new ChessPosition(finalI, finalJ)));
+                        isBaseHighlightSquare = highlightMoves.stream()
+                                .anyMatch(move -> move.getStartPosition().equals(new ChessPosition(finalI, finalJ)));
+                    }
+                    if (isBaseHighlightSquare) {
+                        appendBaseHighlightSquare(result, piece);
+                    }
+                    else if (i % 2 == 1 && j % 2 == 0) {
+                        if (isHighlightSquare) {
+                            appendLightHighlightSquare(result, piece);
+                        } else {
+                            appendLightSquare(result, piece);
+                        }
                     }
                     else if (i % 2 == 1) {
-                        appendDarkSquare(result, piece);
+                        if (isHighlightSquare) {
+                            appendDarkHighlightSquare(result, piece);
+                        } else {
+                            appendDarkSquare(result, piece);
+                        }
                     }
                     else if (j % 2 == 0) {
-                        appendDarkSquare(result, piece);
+                        if (isHighlightSquare) {
+                            appendDarkHighlightSquare(result, piece);
+                        } else {
+                            appendDarkSquare(result, piece);
+                        }
                     }
                     else {
-                        appendLightSquare(result, piece);
+                        if (isHighlightSquare) {
+                            appendLightHighlightSquare(result, piece);
+                        } else {
+                            appendLightSquare(result, piece);
+                        }
                     }
                 }
                 appendNumber(result, i);
                 result.append(RESET_BG_COLOR).append("\n");
             }
+        }
+    }
+
+    private void appendBaseHighlightSquare(StringBuilder result, ChessPiece piece) {
+        if (piece == null) {
+            result.append(SET_BG_COLOR_HIGHLIGHT_YELLOW_DARK + SET_TEXT_COLOR_HIGHLIGHT_YELLOW_DARK).append(EMPTY);
+        } else {
+            result.append(SET_BG_COLOR_HIGHLIGHT_YELLOW_DARK + SET_TEXT_COLOR_HIGHLIGHT_YELLOW_DARK)
+                    .append(determineChessPiece(piece))
+                    .append(SET_TEXT_COLOR_HIGHLIGHT_YELLOW_DARK);
+        }
+    }
+
+    private void appendLightHighlightSquare(StringBuilder result, ChessPiece piece) {
+        if (piece == null) {
+            result.append(SET_BG_COLOR_HIGHLIGHT_GREEN_LIGHT + SET_TEXT_COLOR_HIGHLIGHT_GREEN_LIGHT).append(EMPTY);
+        } else {
+            result.append(SET_BG_COLOR_HIGHLIGHT_GREEN_LIGHT + SET_TEXT_COLOR_HIGHLIGHT_GREEN_LIGHT)
+                    .append(determineChessPiece(piece))
+                    .append(SET_TEXT_COLOR_HIGHLIGHT_GREEN_LIGHT);
+        }
+    }
+
+    private void appendDarkHighlightSquare(StringBuilder result, ChessPiece piece) {
+        if (piece == null) {
+            result.append(SET_BG_COLOR_HIGHLIGHT_GREEN_DARK + SET_TEXT_COLOR_HIGHLIGHT_GREEN_DARK).append(EMPTY);
+        } else {
+            result.append(SET_BG_COLOR_HIGHLIGHT_GREEN_DARK + SET_TEXT_COLOR_HIGHLIGHT_GREEN_DARK)
+                    .append(determineChessPiece(piece))
+                    .append(SET_TEXT_COLOR_HIGHLIGHT_GREEN_DARK);
         }
     }
 

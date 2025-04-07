@@ -46,7 +46,7 @@ public class GameplayRepl implements NotificationHandler {
             case LoadGameMessage loadGameMessage -> {
                 client.setGame(loadGameMessage.getGame());
                 System.out.println();
-                System.out.println(client.stringifyGame(loadGameMessage.getGame(), orientation));
+                System.out.println(client.stringifyGame(loadGameMessage.getGame(), orientation, null));
             }
             case null, default -> System.out.println(SET_TEXT_COLOR_RED + "Unknown message type received");
         }

@@ -55,6 +55,30 @@ public class EscapeSequences {
     public static final String SET_BG_COLOR_SOFT_WHITE = SET_BG_COLOR + "180m";
     public static final String RESET_BG_COLOR = UNICODE_ESCAPE + "[49m";
 
+    // Highlighted light square (yellow highlight)
+    public static final String SET_BG_COLOR_HIGHLIGHT_YELLOW_LIGHT = SET_BG_COLOR + "187m";
+
+    // Highlighted dark square (yellow highlight)
+    public static final String SET_BG_COLOR_HIGHLIGHT_YELLOW_DARK = SET_BG_COLOR + "178m";
+
+    // Highlighted light square (green highlight)
+    public static final String SET_BG_COLOR_HIGHLIGHT_GREEN_LIGHT = SET_BG_COLOR + "151m";
+
+    // Highlighted dark square (green highlight)
+    public static final String SET_BG_COLOR_HIGHLIGHT_GREEN_DARK = SET_BG_COLOR + "107m";
+
+    // Highlighted light square (yellow highlight)
+    public static final String SET_TEXT_COLOR_HIGHLIGHT_YELLOW_LIGHT = SET_TEXT_COLOR + "187m";
+
+    // Highlighted dark square (yellow highlight)
+    public static final String SET_TEXT_COLOR_HIGHLIGHT_YELLOW_DARK = SET_TEXT_COLOR + "178m";
+
+    // Highlighted light square (green highlight)
+    public static final String SET_TEXT_COLOR_HIGHLIGHT_GREEN_LIGHT = SET_TEXT_COLOR + "151m";
+
+    // Highlighted dark square (green highlight)
+    public static final String SET_TEXT_COLOR_HIGHLIGHT_GREEN_DARK = SET_TEXT_COLOR + "107m";
+
     public static final String WHITE_KING = " ♔ ";
     public static final String WHITE_QUEEN = " ♕ ";
     public static final String WHITE_BISHOP = " ♗ ";
