@@ -75,6 +75,9 @@ public class WebSocketFacade extends Endpoint {
 
     public void makeMove(MakeMoveCommand moveCommand) throws ResponseException {
         try {
+            if (!this.session.isOpen()) {
+                throw new ResponseException(500, "Error: connection with the game closed. Please leave and rejoin the game");
+            }
             this.session.getBasicRemote().sendText(moveCommand.toString());
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -83,6 +86,9 @@ public class WebSocketFacade extends Endpoint {
 
     public void leave(UserGameCommand leaveCommand) throws ResponseException {
         try {
+            if (!this.session.isOpen()) {
+                return;
+            }
             this.session.getBasicRemote().sendText(leaveCommand.toString());
             this.session.close();
         } catch (IOException ex) {
@@ -92,6 +98,9 @@ public class WebSocketFacade extends Endpoint {
 
     public void resign(UserGameCommand resignCommand) throws ResponseException {
         try {
+            if (!this.session.isOpen()) {
+                throw new ResponseException(500, "Error: connection with the game closed. Please leave and rejoin the game");
+            }
             this.session.getBasicRemote().sendText(resignCommand.toString());
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());

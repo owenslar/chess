@@ -88,6 +88,9 @@ public class GameplayClient {
 
     public String makeMove(String... params) throws ResponseException {
         if (params.length == 2) {
+            if (game.getIsOver()) {
+                throw new ResponseException(400, "Invalid move: the game is over");
+            }
             String start = params[0];
             String end = params[1];
             ChessMove move = convertToChessMove(start, end, null);
@@ -95,20 +98,17 @@ public class GameplayClient {
                     == ChessPiece.PieceType.PAWN && (move.getEndPosition().getRow() == 1 || move.getEndPosition().getRow() == 8)) {
                 throw new ResponseException(400, "Invalid move: promotion piece required");
             }
-            if (game.getIsOver()) {
-                throw new ResponseException(400, "Invalid move: the game is over");
-            }
             MakeMoveCommand moveCommand = new MakeMoveCommand(authToken, gameID, move);
             ws.makeMove(moveCommand);
             return "";
         } else if (params.length == 3) {
+            if (game.getIsOver()) {
+                throw new ResponseException(400, "Invalid move: the game is over");
+            }
             String start = params[0];
             String end = params[1];
             String promotionPiece = params[2].toUpperCase();
             ChessMove move = convertToChessMove(start, end, promotionPiece);
-            if (game.getIsOver()) {
-                throw new ResponseException(400, "Invalid move: the game is over");
-            }
             MakeMoveCommand moveCommand = new MakeMoveCommand(authToken, gameID, move);
             ws.makeMove(moveCommand);
             return "";
@@ -140,6 +140,9 @@ public class GameplayClient {
             throw new ResponseException(400, "invalid move: row must be a digit 1-8");
         }
         int row = Character.getNumericValue(rowLetter);
+        if (row > 8 || row < 1) {
+            throw new ResponseException(400, "invalid move: row must be a digit 1-8");
+        }
         return new ChessPosition(row, col);
     }
 

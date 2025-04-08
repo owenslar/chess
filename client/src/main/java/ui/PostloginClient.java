@@ -46,7 +46,11 @@ public class PostloginClient {
     public String observe(String... params) throws ResponseException {
         if (params.length == 1) {
             try {
-                Integer gameID = Integer.parseInt(params[0]);
+                Integer inputGameID = Integer.parseInt(params[0]);
+                Integer gameID = games.get(inputGameID);
+                if (gameID == null) {
+                    throw new ResponseException(400, "Invalid game number");
+                }
                 GameplayRepl gameplayRepl = new GameplayRepl(serverUrl, authToken, gameID, "WHITE");
                 gameplayRepl.run();
                 return "";
@@ -56,12 +60,15 @@ public class PostloginClient {
                 throw new ResponseException(400, "Invalid game number");
             }
         }
-        throw new ResponseException(400, "Expected: <gameNumber>");
+        throw new ResponseException(400, "Expected: observe <gameNumber>");
     }
 
     public String join(String... params) throws ResponseException {
         if (params.length == 2) {
             String color = params[1].toUpperCase();
+            if (!color.equals("WHITE") && !color.equals("BLACK")) {
+                throw new ResponseException(400, "Invalid game color: please enter white or black");
+            }
             try {
                 JoinRequest joinRequest = new JoinRequest(authToken, color, games.get(Integer.parseInt(params[0])));
                 server.join(joinRequest);
