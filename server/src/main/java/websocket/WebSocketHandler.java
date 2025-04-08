@@ -36,7 +36,7 @@ import websocket.messages.ServerMessage;
 public class WebSocketHandler {
 
     private final WebSocketSessions sessions = new WebSocketSessions();
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
     private final AuthDAO authDAO;
     private final GameDAO gameDAO;
 
@@ -129,7 +129,6 @@ public class WebSocketHandler {
     }
 
     private void makeMove(Session session, MakeMoveCommand commandObject) throws IOException, DataAccessException {
-        // 1. Validate input fields (authtoken, gameID, chessMove)
         String authToken = commandObject.getAuthToken();
         Integer gameID = commandObject.getGameID();
         ChessMove move = commandObject.getMove();
@@ -145,26 +144,22 @@ public class WebSocketHandler {
             sendMessage(session, new ErrorMessage("Error: no chess move provided"));
             return;
         }
-
-        // 2. authenticate user
         AuthData authData = authDAO.getAuth(authToken);
         if (authData == null) {
             sendMessage(session, new ErrorMessage("Error: unauthorized"));
             return;
         }
-
         GameData gameData = gameDAO.getGame(gameID);
         if (gameData == null) {
             sendMessage(session, new ErrorMessage("Error: invalid gameID"));
             return;
         }
-
-        // 3. verify the validity of the requested move and update the game to represent the move
         int startPosCol = move.getStartPosition().getColumn();
         int startPosRow = move.getStartPosition().getRow();
         int endPosCol = move.getEndPosition().getColumn();
         int endPosRow = move.getEndPosition().getRow();
-        if (startPosCol > 8 || startPosCol < 1 || startPosRow > 8 || startPosRow < 1 || endPosRow > 8 || endPosRow < 1 || endPosCol > 8 || endPosCol < 1) {
+        if (startPosCol > 8 || startPosCol < 1 || startPosRow > 8
+                || startPosRow < 1 || endPosRow > 8 || endPosRow < 1 || endPosCol > 8 || endPosCol < 1) {
             sendMessage(session, new ErrorMessage("Error: invalid move (out of bounds)"));
             return;
         }
@@ -196,42 +191,27 @@ public class WebSocketHandler {
                 return;
             }
         }
-
         try {
             gameData.game().makeMove(move);
         } catch (InvalidMoveException e) {
             sendMessage(session, new ErrorMessage("Error: invalid move"));
             return;
         }
-
-        // 3.5. check if the move resulted in checkmate or stalemate and mark the game as over if it did
         ChessGame.TeamColor defendingColor = (moveColor == ChessGame.TeamColor.WHITE)
                 ? ChessGame.TeamColor.BLACK
                 : ChessGame.TeamColor.WHITE;
-
         boolean isCheckmate = gameData.game().isInCheckmate(defendingColor);
         boolean isStalemate = gameData.game().isInStalemate(defendingColor);
         boolean isCheck = gameData.game().isInCheck(defendingColor);
-
         if (isCheckmate || isStalemate) {
             gameData.game().setIsOver(true);
         }
-
-        // 4. update the game in the database
         gameDAO.updateGame(gameData);
-
-
-        // 5. send load_game message to all clients in game
         LoadGameMessage loadGameMessage = new LoadGameMessage(gameData.game());
         broadcastMessage(gameID, loadGameMessage, null);
-
-        // 6. send a notification to all OTHER clients telling them what move was made
         NotificationMessage moveMessage = new NotificationMessage(authData.username() + " moved: " +
                 convertChessPosition(move.getStartPosition()) + " -> " + convertChessPosition(move.getEndPosition()));
         broadcastMessage(gameID, moveMessage, session);
-
-        // 7. if the move results in check or checkmate send a notification message to all clients
-        //    (also mark the game as over before sending it if it resulted in checkmate)
         if (isCheckmate) {
             NotificationMessage checkmateMessage = new NotificationMessage("CHECKMATE! " + authData.username() + " won the game");
             broadcastMessage(gameID, checkmateMessage, null);
@@ -399,7 +379,7 @@ public class WebSocketHandler {
     }
 
     private UserGameCommand deserializeMessage(String message) throws IllegalArgumentException {
-        JsonObject jsonObject = gson.fromJson(message, JsonObject.class);
+        JsonObject jsonObject = GSON.fromJson(message, JsonObject.class);
 
         if (!jsonObject.has("commandType")) {
             throw new IllegalArgumentException("Missing commandType field");
@@ -408,9 +388,9 @@ public class WebSocketHandler {
         CommandType commandType = valueOf(commandString);
 
         if (commandType == MAKE_MOVE) {
-            return gson.fromJson(message, MakeMoveCommand.class);
+            return GSON.fromJson(message, MakeMoveCommand.class);
         } else {
-            return gson.fromJson(message, UserGameCommand.class);
+            return GSON.fromJson(message, UserGameCommand.class);
         }
     }
 

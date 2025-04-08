@@ -18,7 +18,7 @@ public class UserGameCommand {
 
     private final Integer gameID;
 
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
 
     public UserGameCommand(CommandType commandType, String authToken, Integer gameID) {
         this.commandType = commandType;
@@ -46,7 +46,7 @@ public class UserGameCommand {
     }
 
     public String toString() {
-        return gson.toJson(this);
+        return GSON.toJson(this);
     }
 
     @Override

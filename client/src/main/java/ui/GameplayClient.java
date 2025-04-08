@@ -197,110 +197,61 @@ public class GameplayClient {
 
     private void appendChessBoard(StringBuilder result, ChessGame game, String orientation, Collection<ChessMove> highlightMoves) {
         ChessBoard board = game.getBoard();
-        boolean isHighlightSquare;
-        boolean isBaseHighlightSquare;
-        if (Objects.equals(orientation, "WHITE")) {
-            for (int i = 8; i > 0; i--) {
-                appendNumber(result, i);
-                for (int j = 1; j < 9; j++) {
-                    ChessPiece piece = board.getPiece(new ChessPosition(i, j));
-                    isHighlightSquare = false;
-                    isBaseHighlightSquare = false;
-                    if (highlightMoves != null) {
-                        int finalI = i;
-                        int finalJ = j;
-                        isHighlightSquare = highlightMoves.stream()
-                                .anyMatch(move -> move.getEndPosition().equals(new ChessPosition(finalI, finalJ)));
-                        isBaseHighlightSquare = highlightMoves.stream()
-                            .anyMatch(move -> move.getStartPosition().equals(new ChessPosition(finalI, finalJ)));
-                    }
-                    if (isBaseHighlightSquare) {
-                        appendBaseHighlightSquare(result, piece);
-                    }
-                    else if (i % 2 == 0 && j % 2 == 1) {
-                        if (isHighlightSquare) {
-                            appendLightHighlightSquare(result, piece);
-                        } else {
-                            appendLightSquare(result, piece);
-                        }
-                    }
-                    else if (i % 2 == 0) {
-                        if (isHighlightSquare) {
-                            appendDarkHighlightSquare(result, piece);
-                        } else {
-                            appendDarkSquare(result, piece);
-                        }
-                    }
-                    else if (j % 2 == 0) {
-                        if (isHighlightSquare) {
-                            appendLightHighlightSquare(result, piece);
-                        } else {
-                            appendLightSquare(result, piece);
-                        }
-                    }
-                    else {
-                        if (isHighlightSquare) {
-                            appendDarkHighlightSquare(result, piece);
-                        } else {
-                            appendDarkSquare(result, piece);
-                        }
-                    }
-                }
-                appendNumber(result, i);
-                result.append(RESET_BG_COLOR).append("\n");
+        boolean whiteOrientation = Objects.equals(orientation, "WHITE");
+
+        int startRow = whiteOrientation ? 8 : 1;
+        int endRow = whiteOrientation ? 0 : 9;
+        int rowStep = whiteOrientation ? -1 : 1;
+
+        for (int i = startRow; i != endRow; i += rowStep) {
+            appendNumber(result, i);
+            for (int j = whiteOrientation ? 1 : 8;
+                 whiteOrientation ? j <= 8 : j >= 1;
+                 j += whiteOrientation ? 1 : -1) {
+
+                ChessPosition position = new ChessPosition(i, j);
+                ChessPiece piece = board.getPiece(position);
+                boolean isHighlightSquare = isEndHighlightSquare(position, highlightMoves);
+                boolean isBaseHighlightSquare = isStartHighlightSquare(position, highlightMoves);
+
+                appendSquare(result, i, j, piece, isHighlightSquare, isBaseHighlightSquare);
+            }
+            appendNumber(result, i);
+            result.append(RESET_BG_COLOR).append("\n");
+        }
+    }
+
+    private boolean isEndHighlightSquare(ChessPosition pos, Collection<ChessMove> moves) {
+        return moves != null && moves.stream()
+                .anyMatch(move -> move.getEndPosition().equals(pos));
+    }
+
+    private boolean isStartHighlightSquare(ChessPosition pos, Collection<ChessMove> moves) {
+        return moves != null && moves.stream()
+                .anyMatch(move -> move.getStartPosition().equals(pos));
+    }
+
+    private void appendSquare(StringBuilder result, int i, int j, ChessPiece piece,
+                              boolean isHighlightSquare, boolean isBaseHighlightSquare) {
+        boolean isLightSquare = (i + j) % 2 == 0;
+
+        if (isBaseHighlightSquare) {
+            appendBaseHighlightSquare(result, piece);
+        } else if (isHighlightSquare) {
+            if (isLightSquare) {
+                appendLightHighlightSquare(result, piece);
+            } else {
+                appendDarkHighlightSquare(result, piece);
             }
         } else {
-            for (int i = 1; i < 9; i++) {
-                appendNumber(result, i);
-                for (int j = 8; j > 0; j--) {
-                    ChessPiece piece = board.getPiece(new ChessPosition(i, j));
-                    isHighlightSquare = false;
-                    isBaseHighlightSquare = false;
-                    if (highlightMoves != null) {
-                        int finalI = i;
-                        int finalJ = j;
-                        isHighlightSquare = highlightMoves.stream()
-                                .anyMatch(move -> move.getEndPosition().equals(new ChessPosition(finalI, finalJ)));
-                        isBaseHighlightSquare = highlightMoves.stream()
-                                .anyMatch(move -> move.getStartPosition().equals(new ChessPosition(finalI, finalJ)));
-                    }
-                    if (isBaseHighlightSquare) {
-                        appendBaseHighlightSquare(result, piece);
-                    }
-                    else if (i % 2 == 1 && j % 2 == 0) {
-                        if (isHighlightSquare) {
-                            appendLightHighlightSquare(result, piece);
-                        } else {
-                            appendLightSquare(result, piece);
-                        }
-                    }
-                    else if (i % 2 == 1) {
-                        if (isHighlightSquare) {
-                            appendDarkHighlightSquare(result, piece);
-                        } else {
-                            appendDarkSquare(result, piece);
-                        }
-                    }
-                    else if (j % 2 == 0) {
-                        if (isHighlightSquare) {
-                            appendDarkHighlightSquare(result, piece);
-                        } else {
-                            appendDarkSquare(result, piece);
-                        }
-                    }
-                    else {
-                        if (isHighlightSquare) {
-                            appendLightHighlightSquare(result, piece);
-                        } else {
-                            appendLightSquare(result, piece);
-                        }
-                    }
-                }
-                appendNumber(result, i);
-                result.append(RESET_BG_COLOR).append("\n");
+            if (isLightSquare) {
+                appendLightSquare(result, piece);
+            } else {
+                appendDarkSquare(result, piece);
             }
         }
     }
+
 
     private void appendBaseHighlightSquare(StringBuilder result, ChessPiece piece) {
         if (piece == null) {

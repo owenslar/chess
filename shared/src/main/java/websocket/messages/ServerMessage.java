@@ -12,7 +12,7 @@ import java.util.Objects;
  */
 public class ServerMessage {
     ServerMessageType serverMessageType;
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
 
     public enum ServerMessageType {
         LOAD_GAME,
@@ -29,7 +29,7 @@ public class ServerMessage {
     }
 
     public String toString() {
-        return gson.toJson(this);
+        return GSON.toJson(this);
     }
 
     @Override
