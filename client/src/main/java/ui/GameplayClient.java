@@ -94,6 +94,10 @@ public class GameplayClient {
             String start = params[0];
             String end = params[1];
             ChessMove move = convertToChessMove(start, end, null);
+            ChessPiece piece = game.getBoard().getPiece(move.getStartPosition());
+            if (piece == null) {
+                throw new ResponseException(400, "Invalid move: no piece on the starting square");
+            }
             if (game.getBoard().getPiece(move.getStartPosition()).getPieceType()
                     == ChessPiece.PieceType.PAWN && (move.getEndPosition().getRow() == 1 || move.getEndPosition().getRow() == 8)) {
                 throw new ResponseException(400, "Invalid move: promotion piece required");

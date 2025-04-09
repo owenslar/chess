@@ -209,21 +209,27 @@ public class WebSocketHandler {
         gameDAO.updateGame(gameData);
         LoadGameMessage loadGameMessage = new LoadGameMessage(gameData.game());
         broadcastMessage(gameID, loadGameMessage, null);
+        String defendingUsername;
+        if (defendingColor == ChessGame.TeamColor.WHITE) {
+            defendingUsername = gameData.whiteUsername();
+        } else {
+            defendingUsername = gameData.blackUsername();
+        }
         NotificationMessage moveMessage = new NotificationMessage(authData.username() + " moved: " +
                 convertChessPosition(move.getStartPosition()) + " -> " + convertChessPosition(move.getEndPosition()));
         broadcastMessage(gameID, moveMessage, session);
         if (isCheckmate) {
-            NotificationMessage checkmateMessage = new NotificationMessage("CHECKMATE! " + authData.username() + " won the game");
+            NotificationMessage checkmateMessage = new NotificationMessage(defendingUsername + " is in checkmate! " + authData.username() + " won the game");
             broadcastMessage(gameID, checkmateMessage, null);
             return;
         }
         if (isStalemate) {
-            NotificationMessage stalemateMessage = new NotificationMessage("Stalemate! The game has ended in a draw");
+            NotificationMessage stalemateMessage = new NotificationMessage(defendingUsername + " is in stalemate! The game has ended in a draw");
             broadcastMessage(gameID, stalemateMessage, null);
             return;
         }
         if (isCheck) {
-            NotificationMessage checkMessage = new NotificationMessage("The " + defendingColor + " king is now in check!");
+            NotificationMessage checkMessage = new NotificationMessage(defendingUsername + " is now in check!");
             broadcastMessage(gameID, checkMessage, null);
         }
     }
